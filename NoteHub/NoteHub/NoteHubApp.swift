@@ -9,9 +9,18 @@ import SwiftUI
 
 @main
 struct NoteHubApp: App {
+    var isLoggedIn: Bool = false
+    
+//    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if isLoggedIn {
+                // главная
+                ContentView()
+            } else {
+                WelcomeView()
+            }
         }
     }
 }
