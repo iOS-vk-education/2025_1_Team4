@@ -103,7 +103,7 @@ struct AuthView: View {
         }
         // переход на главную
         .fullScreenCover(isPresented: $isContentViewPresented) {
-            ContentView()
+            MainTabView()
                 .environmentObject(userStorage)
         }
         .fullScreenCover(isPresented: $isRegistrationPresented) {

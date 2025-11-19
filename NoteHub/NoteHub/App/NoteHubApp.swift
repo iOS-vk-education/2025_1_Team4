@@ -16,8 +16,7 @@ struct NoteHubApp: App {
     var body: some Scene {
         WindowGroup {
             if isLoggedIn {
-                // главная
-                ContentView()
+                MainTabView()
             } else {
                 WelcomeView()
             }
