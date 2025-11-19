@@ -13,7 +13,7 @@ struct ProfileView: View {
     @State private var showEmptyState = true
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 if showEmptyState {
                     EmptyProfileView(showSettings: $showSettings)
@@ -26,13 +26,12 @@ struct ProfileView: View {
                     )
                 }
             }
-            .navigationBarHidden(true)
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
         .onAppear {
-            showEmptyState = true //пока менять руками на фолс чтобы увидеть непустой профиль
+            showEmptyState = false //пока менять руками на фолс чтобы увидеть непустой профиль
             
             if !showEmptyState && store.notes.isEmpty {
                 store.addSample()
@@ -41,35 +40,6 @@ struct ProfileView: View {
     }
 }
 
-struct ProfileWithNotesView: View {
-    let notes: [Note]
-    @Binding var showSettings: Bool
-    let notesCount: Int
-    let publishedCount: Int
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            ProfileHeaderView(
-                username: "petrpetrov",
-                notesCount: notesCount,
-                publishedCount: publishedCount,
-                showSettings: $showSettings
-            )
-            
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(notes) { note in
-                        NoteCard(note: note)
-                    }
-                }
-                .padding()
-            }
-            .background(Color(red: 0.95, green: 0.97, blue: 1.0))
-            
-            Spacer()
-            
-            CustomTabBar(activeTab: .profile)
-        }
-        .background(Color(red: 0.95, green: 0.97, blue: 1.0))
-    }
+#Preview {
+    ProfileView()
 }

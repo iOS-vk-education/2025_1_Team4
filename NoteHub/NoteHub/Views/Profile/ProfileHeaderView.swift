@@ -49,7 +49,6 @@ struct ProfileHeaderView: View {
             .padding(.top, 8)
             .padding(.bottom, 20)
         }
-        .background(Color(red: 0.95, green: 0.97, blue: 1.0))
         .overlay(
             Rectangle()
                 .frame(height: 1)
@@ -57,4 +56,13 @@ struct ProfileHeaderView: View {
             alignment: .bottom
         )
     }
+}
+
+#Preview {
+    ProfileHeaderView(
+        username: "oleg2004",
+        notesCount: 23,
+        publishedCount: 9,
+        showSettings: .constant(false)
+    )
 }
