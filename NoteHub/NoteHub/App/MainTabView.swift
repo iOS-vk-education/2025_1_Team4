@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @State var selectedTab: Tab = .new
+    @State var selectedTab: Tab = .main
 
     var body: some View {
         NavigationStack {
