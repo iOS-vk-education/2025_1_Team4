@@ -9,7 +9,15 @@ import SwiftUI
 
 struct MainPageView: View {
     @State private var searchText = ""
-    let notes: [Note] = NoteMocks.notes
+    @EnvironmentObject private var notesStore: NotesStore
+    
+    private var filteredNotes: [Note] {
+        guard !searchText.isEmpty else { return notesStore.notes }
+        return notesStore.notes.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.preview.localizedCaseInsensitiveContains(searchText)
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -21,11 +29,9 @@ struct MainPageView: View {
                     
                     ScrollView {
                         LazyVStack(spacing: 24) {
-                            ForEach(notes.filter {
-                                searchText.isEmpty ? true : $0.title.localizedCaseInsensitiveContains(searchText)
-                            }) { note in
+                            ForEach(filteredNotes) { note in
                                 NavigationLink {
-                                    ShowNoteView(note:note)
+                                    ShowNoteView(note: note)
                                 } label: {
                                     NoteCardView(note: note)
                                         .padding(.horizontal, 32)
@@ -43,6 +49,7 @@ struct MainPageView: View {
 struct MainPageView_Previews: PreviewProvider {
     static var previews: some View {
         MainPageView()
+            .environmentObject(NotesStore())
     }
 }
 

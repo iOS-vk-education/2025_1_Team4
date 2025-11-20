@@ -17,17 +17,10 @@ class AuthViewModel: ObservableObject {
     }
 }
 
-final class UserStorage: ObservableObject {
-    @Published var name: String = ""
-    @Published var isLoggedIn: Bool = false
-    @Published var userToken: String = ""
-}
-
 struct AuthView: View {
     @StateObject private var viewModel = AuthViewModel()
-    @State private var isContentViewPresented = false
     @State private var isRegistrationPresented = false
-    @StateObject var userStorage = UserStorage()
+    @EnvironmentObject private var userStorage: UserStorage
 
     var body: some View {
         ZStack {
@@ -101,11 +94,7 @@ struct AuthView: View {
             .padding(32)
 
         }
-        // переход на главную
-        .fullScreenCover(isPresented: $isContentViewPresented) {
-            MainTabView()
-                .environmentObject(userStorage)
-        }
+        // переход на регистрацию
         .fullScreenCover(isPresented: $isRegistrationPresented) {
             RegistrationView()
                 .environmentObject(userStorage)
@@ -113,12 +102,12 @@ struct AuthView: View {
     }
 
     private func login() {
-        userStorage.isLoggedIn = true
-        isContentViewPresented = true
+        userStorage.login(as: viewModel.login)
     }
 
 }
 
 #Preview {
     AuthView()
+        .environmentObject(UserStorage())
 }

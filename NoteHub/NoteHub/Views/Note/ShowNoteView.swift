@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import UIKit
+import MarkdownUI
 
 struct ShowNoteView: View {
     let note: Note
@@ -70,21 +72,12 @@ struct ShowNoteView: View {
                         
                         ForEach(note.content, id: \.id) { item in
                             switch item {
-                            case .text(let text):
-                                Text(text)
-                                    .font(.body)
-                                    .foregroundColor(.black)
-                            case .image(let imageName):
-                                NavigationLink {
-                                    FullscreenImageView(imageName: imageName)
-                                } label: {
-                                    Image(imageName)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                }
-                                .buttonStyle(.plain)
+                            case .text(_, let value):
+                                Markdown(sanitizeMarkdown(value))
+                                    .markdownTheme(.gitHub)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            case .image(_, let resource):
+                                imageView(for: resource)
                             }
                         }
                     }
@@ -103,5 +96,32 @@ struct ShowNoteView: View {
 #Preview {
     NavigationStack {
         ShowNoteView(note: NoteMocks.notes.first!)
+    }
+}
+
+private extension ShowNoteView {
+    @ViewBuilder
+    func imageView(for resource: NoteContentItem.ImageResource) -> some View {
+        switch resource {
+        case .asset(let name):
+            NavigationLink {
+                FullscreenImageView(imageName: name)
+            } label: {
+                Image(name)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+            }
+            .buttonStyle(.plain)
+        case .data(let data):
+            if let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+            }
+        }
     }
 }

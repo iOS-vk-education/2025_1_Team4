@@ -8,17 +8,22 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @StateObject private var store = NotesStore()
+    @EnvironmentObject private var store: NotesStore
+    @EnvironmentObject private var userStorage: UserStorage
     @State private var showSettings = false
-    @State private var showEmptyState = true
+    
+    private var username: String {
+        userStorage.name.isEmpty ? "Гость" : userStorage.name
+    }
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if showEmptyState {
-                    EmptyProfileView(showSettings: $showSettings)
+                if store.notes.isEmpty {
+                    EmptyProfileView(username: username, showSettings: $showSettings)
                 } else {
                     ProfileWithNotesView(
+                        username: username,
                         notes: store.notes,
                         showSettings: $showSettings,
                         notesCount: store.notes.count,
@@ -29,17 +34,13 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
-        }
-        .onAppear {
-            showEmptyState = false //пока менять руками на фолс чтобы увидеть непустой профиль
-            
-            if !showEmptyState && store.notes.isEmpty {
-                store.addSample()
-            }
+                .environmentObject(userStorage)
         }
     }
 }
 
 #Preview {
     ProfileView()
+        .environmentObject(NotesStore())
+        .environmentObject(UserStorage())
 }

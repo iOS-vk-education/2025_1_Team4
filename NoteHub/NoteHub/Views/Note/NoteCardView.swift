@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MarkdownUI
 
 struct NoteCardView: View {
     let note: Note
@@ -23,11 +24,25 @@ struct NoteCardView: View {
             .background(note.color)
             .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
             
-            Text(note.preview)
-                .font(.subheadline)
-                .lineLimit(2)
-                .foregroundColor(.primary)
-                .padding([.horizontal, .bottom], 8)
+            ZStack(alignment: .bottom) {
+                Markdown(sanitizeMarkdown(note.preview))
+                    .markdownTheme(.gitHub)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 8)
+                
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0),
+                        Color.white.opacity(0.9)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 24)
+            }
+            .frame(maxHeight: 140, alignment: .top)
+            .clipped()
             
             if !note.userName.isEmpty {
                 HStack {

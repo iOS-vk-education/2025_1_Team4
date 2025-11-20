@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct EmptyProfileView: View {
+    let username: String
     @Binding var showSettings: Bool
     
     var body: some View {
         ZStack(alignment: .bottom) {
             Color("Main_Background")
                 .edgesIgnoringSafeArea(.all)
+            
             VStack(spacing: 0) {
                 ProfileHeaderView(
-                    username: "petrpetrov",
+                    username: username,
                     notesCount: 0,
                     publishedCount: 0,
                     showSettings: $showSettings
@@ -35,14 +37,14 @@ struct EmptyProfileView: View {
                         .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 40)
+                
                 Spacer()
             }
+            .padding(.horizontal, 40)
         }
     }
 }
 
 #Preview {
-    EmptyProfileView(
-        showSettings: .constant(true)
-    )
+    EmptyProfileView(username: "demo", showSettings: .constant(false))
 }

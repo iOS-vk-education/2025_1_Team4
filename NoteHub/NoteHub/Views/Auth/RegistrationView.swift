@@ -25,9 +25,9 @@ class RegistrationViewModel: ObservableObject {
 
 struct RegistrationView: View {
     @StateObject private var viewModel = RegistrationViewModel()
-    @State private var isContentViewPresented = false
     @State private var isAuthPresented = false
-    @StateObject var userStorage = UserStorage()
+    @EnvironmentObject private var userStorage: UserStorage
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -118,11 +118,6 @@ struct RegistrationView: View {
             .padding(32)
             
         }
-        // переход на главную
-        .fullScreenCover(isPresented: $isContentViewPresented) {
-            MainTabView()
-                .environmentObject(userStorage)
-        }
         .fullScreenCover(isPresented: $isAuthPresented) {
             AuthView()
                 .environmentObject(userStorage)
@@ -130,11 +125,12 @@ struct RegistrationView: View {
     }
     
     private func register() {
-        userStorage.isLoggedIn = true
-        isContentViewPresented = true
+        userStorage.login(as: viewModel.name.isEmpty ? viewModel.login : viewModel.name)
+        dismiss()
     }
 }
 
 #Preview {
     RegistrationView()
+        .environmentObject(UserStorage())
 }
