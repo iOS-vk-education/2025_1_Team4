@@ -9,17 +9,20 @@ import SwiftUI
 
 @main
 struct NoteHubApp: App {
-    var isLoggedIn: Bool = false
-    
-//    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
+    @StateObject private var userStorage = UserStorage()
+    @StateObject private var notesStore = NotesStore()
     
     var body: some Scene {
         WindowGroup {
-            if isLoggedIn {
-                MainTabView()
-            } else {
-                WelcomeView()
+            Group {
+                if userStorage.isLoggedIn {
+                    MainTabView()
+                } else {
+                    WelcomeView()
+                }
             }
+            .environmentObject(userStorage)
+            .environmentObject(notesStore)
         }
     }
 }

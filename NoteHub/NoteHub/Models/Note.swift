@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 struct Note: Identifiable {
     let id = UUID()
@@ -17,9 +18,9 @@ struct Note: Identifiable {
     let userName: String
     
     var preview: String {
-            content.compactMap {
-                if case let .text(text) = $0 { text } else { nil }
-            }
-            .first ?? ""
+        content.compactMap {
+            if case let .text(_, value) = $0 { value } else { nil }
         }
+        .first ?? ""
+    }
 }

@@ -13,11 +13,11 @@ class NoteMocks {
         Note(
             title: "wwwМатематическая логика. Лекция 1",
             content: [
-                .text("Определение (Модель Крипки). Рассмотрим Wi множество миров, имеющие частичный порядок (≤)."),
-                .image("Cat_Image"),
-                .text("Доопределим отношение вынужденности: 1. Wi ⊨ α&β, если Wi ⊨ α и Wi ⊨ β..."),
-                .image("Cat_Image"),
-                .image("Cat_Image"),
+                .text(value: "Определение (Модель Крипки). Рассмотрим Wi множество миров, имеющие частичный порядок (≤)."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .text(value: "Доопределим отношение вынужденности: 1. Wi ⊨ α&β, если Wi ⊨ α и Wi ⊨ β..."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .image(resource: .asset(name: "Cat_Image")),
             ],
             color: Color(red: 119/255, green: 178/255, blue: 179/255),
             isPublished: true,
@@ -26,9 +26,9 @@ class NoteMocks {
         Note(
             title: "Дискретная математика. Лекция 1",
             content: [
-                .text("Определение: Множество — первичное математическое понятие..."),
-                .image("Cat_Image"),
-                .text("Здесь идут рассуждения, примеры, задачи...")
+                .text(value: "Определение: Множество — первичное математическое понятие..."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .text(value: "Здесь идут рассуждения, примеры, задачи...")
             ],
             color: Color(red: 250/255, green: 218/255, blue: 221/255),
             isPublished: false,
@@ -37,8 +37,8 @@ class NoteMocks {
         Note(
             title: "Операционные системы. Введение.",
             content: [
-                .text("Зачем нужна операционная система? Что такое вычислительный узел?"),
-                .image("Cat_Image"),
+                .text(value: "Зачем нужна операционная система? Что такое вычислительный узел?"),
+                .image(resource: .asset(name: "Cat_Image")),
             ],
             color: Color(red: 250/255, green: 226/255, blue: 189/255),
             isPublished: true,
@@ -47,11 +47,11 @@ class NoteMocks {
         Note(
             title: "wwwМатематическая логика. Лекция 1",
             content: [
-                .text("Определение (Модель Крипки). Рассмотрим Wi множество миров, имеющие частичный порядок (≤)."),
-                .image("Cat_Image"),
-                .text("Доопределим отношение вынужденности: 1. Wi ⊨ α&β, если Wi ⊨ α и Wi ⊨ β..."),
-                .image("Cat_Image"),
-                .image("Cat_Image"),
+                .text(value: "Определение (Модель Крипки). Рассмотрим Wi множество миров, имеющие частичный порядок (≤)."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .text(value: "Доопределим отношение вынужденности: 1. Wi ⊨ α&β, если Wi ⊨ α и Wi ⊨ β..."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .image(resource: .asset(name: "Cat_Image")),
             ],
             color: Color(red: 119/255, green: 178/255, blue: 179/255),
             isPublished: true,
@@ -60,9 +60,9 @@ class NoteMocks {
         Note(
             title: "Дискретная математика. Лекция 1",
             content: [
-                .text("Определение: Множество — первичное математическое понятие..."),
-                .image("Cat_Image"),
-                .text("Здесь идут рассуждения, примеры, задачи...")
+                .text(value: "Определение: Множество — первичное математическое понятие..."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .text(value: "Здесь идут рассуждения, примеры, задачи...")
             ],
             color: Color(red: 250/255, green: 218/255, blue: 221/255),
             isPublished: false,
@@ -71,8 +71,8 @@ class NoteMocks {
         Note(
             title: "Операционные системы. Введение.",
             content: [
-                .text("Зачем нужна операционная система? Что такое вычислительный узел?"),
-                .image("Cat_Image"),
+                .text(value: "Зачем нужна операционная система? Что такое вычислительный узел?"),
+                .image(resource: .asset(name: "Cat_Image")),
             ],
             color: Color(red: 250/255, green: 226/255, blue: 189/255),
             isPublished: true,
@@ -81,11 +81,11 @@ class NoteMocks {
         Note(
             title: "wwwМатематическая логика. Лекция 1",
             content: [
-                .text("Определение (Модель Крипки). Рассмотрим Wi множество миров, имеющие частичный порядок (≤)."),
-                .image("Cat_Image"),
-                .text("Доопределим отношение вынужденности: 1. Wi ⊨ α&β, если Wi ⊨ α и Wi ⊨ β..."),
-                .image("Cat_Image"),
-                .image("Cat_Image"),
+                .text(value: "Определение (Модель Крипки). Рассмотрим Wi множество миров, имеющие частичный порядок (≤)."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .text(value: "Доопределим отношение вынужденности: 1. Wi ⊨ α&β, если Wi ⊨ α и Wi ⊨ β..."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .image(resource: .asset(name: "Cat_Image")),
             ],
             color: Color(red: 119/255, green: 178/255, blue: 179/255),
             isPublished: true,
@@ -94,9 +94,9 @@ class NoteMocks {
         Note(
             title: "Дискретная математика. Лекция 1",
             content: [
-                .text("Определение: Множество — первичное математическое понятие..."),
-                .image("Cat_Image"),
-                .text("Здесь идут рассуждения, примеры, задачи...")
+                .text(value: "Определение: Множество — первичное математическое понятие..."),
+                .image(resource: .asset(name: "Cat_Image")),
+                .text(value: "Здесь идут рассуждения, примеры, задачи...")
             ],
             color: Color(red: 250/255, green: 218/255, blue: 221/255),
             isPublished: false,
@@ -105,8 +105,8 @@ class NoteMocks {
         Note(
             title: "Операционные системы. Введение.",
             content: [
-                .text("Зачем нужна операционная система? Что такое вычислительный узел?"),
-                .image("Cat_Image"),
+                .text(value: "Зачем нужна операционная система? Что такое вычислительный узел?"),
+                .image(resource: .asset(name: "Cat_Image")),
             ],
             color: Color(red: 250/255, green: 226/255, blue: 189/255),
             isPublished: true,

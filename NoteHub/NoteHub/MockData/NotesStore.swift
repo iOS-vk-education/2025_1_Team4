@@ -9,7 +9,11 @@ import Foundation
 import Combine
 
 final class NotesStore: ObservableObject {
-    @Published var notes: [Note] = []
+    @Published private(set) var notes: [Note]
+    
+    init(notes: [Note] = NoteMocks.notes) {
+        self.notes = notes
+    }
     
     var publishedCount: Int {
         notes.filter { $0.isPublished }.count
@@ -19,5 +23,15 @@ final class NotesStore: ObservableObject {
         notes = NoteMocks.notes
     }
     
-    func clearAll() { notes.removeAll() }
+    func add(_ note: Note) {
+        notes.insert(note, at: 0)
+    }
+    
+    func replaceAll(with notes: [Note]) {
+        self.notes = notes
+    }
+    
+    func clearAll() {
+        notes.removeAll()
+    }
 }

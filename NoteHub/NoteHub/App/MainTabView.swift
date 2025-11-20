@@ -8,18 +8,17 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @State var selectedTab: Tab = Tab.main
+    @State var selectedTab: Tab = .main
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Контент соответствующий выбранному табу
                 Group {
                     switch selectedTab {
                     case .main:
                         MainPageView()
                     case .new:
-                        MainPageView()
+                        CreateNoteView()
                     case .profile:
                         ProfileView()
                     }
@@ -41,4 +40,6 @@ enum Tab: Int {
 
 #Preview {
     MainTabView()
+        .environmentObject(NotesStore())
+        .environmentObject(UserStorage())
 }

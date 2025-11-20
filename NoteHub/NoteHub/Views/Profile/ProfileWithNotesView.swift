@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 struct ProfileWithNotesView: View {
+    let username: String
     let notes: [Note]
     @Binding var showSettings: Bool
     let notesCount: Int
@@ -20,7 +21,7 @@ struct ProfileWithNotesView: View {
                 .edgesIgnoringSafeArea(.all)
             VStack(spacing: 0) {
                 ProfileHeaderView(
-                    username: "petrpetrov",
+                    username: username,
                     notesCount: notesCount,
                     publishedCount: publishedCount,
                     showSettings: $showSettings
@@ -30,7 +31,7 @@ struct ProfileWithNotesView: View {
                     LazyVStack(spacing: 24) {
                         ForEach(notes) { note in
                             NavigationLink {
-                                ShowNoteView(note:note)
+                                ShowNoteView(note: note)
                             } label: {
                                 NoteCardView(note: note)
                                     .padding(.horizontal, 32)
