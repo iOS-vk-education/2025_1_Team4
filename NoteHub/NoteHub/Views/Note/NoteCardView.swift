@@ -15,12 +15,12 @@ struct NoteCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(note.title)
-                    .font(.headline)
+                    .font(.title2)
                     .foregroundColor(.black)
                 Spacer()
             }
             .padding(.vertical, 8)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 16)
             .background(note.color)
             .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
             

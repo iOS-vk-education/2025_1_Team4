@@ -40,7 +40,7 @@ struct CustomTabBar: View {
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 40)
-        .padding(.vertical, 16)
+        .padding(.top, 16)
         .background(Color.white)
         .overlay(
             Rectangle()

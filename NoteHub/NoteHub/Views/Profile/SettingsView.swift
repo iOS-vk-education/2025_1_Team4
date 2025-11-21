@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showDeleteAlert = false
     @State private var showLogoutAlert = false
+    @EnvironmentObject private var userStorage: UserStorage
 
     var body: some View {
         NavigationView {
@@ -18,7 +19,9 @@ struct SettingsView: View {
                 Spacer()
 
                 VStack(spacing: 14) {
-                    Button { showLogoutAlert = true } label: {
+                    Button {
+                        userStorage.logout()
+                    } label: {
                         Text("Выйти")
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -26,7 +29,9 @@ struct SettingsView: View {
                             .foregroundColor(.white)
                     }
 
-                    Button { showDeleteAlert = true } label: {
+                    Button {
+                        userStorage.logout()
+                    } label: {
                         Text("Удалить аккаунт")
                             .frame(maxWidth: .infinity)
                             .padding()

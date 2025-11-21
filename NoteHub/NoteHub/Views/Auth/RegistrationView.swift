@@ -83,7 +83,7 @@ struct RegistrationView: View {
                     Button {
                         register()
                     } label: {
-                        Text("Войти")
+                        Text("Зарегистрироваться")
                             .padding()
                             .frame(maxWidth: .infinity)
                             .background(viewModel.isFormValid ? Color.blue : Color.secondary)

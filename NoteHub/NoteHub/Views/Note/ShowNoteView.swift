@@ -12,6 +12,7 @@ import MarkdownUI
 struct ShowNoteView: View {
     let note: Note
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var userStorage: UserStorage
     
     var body: some View {
         NavigationStack {
@@ -30,30 +31,42 @@ struct ShowNoteView: View {
                     Spacer()
                     
                     ZStack(alignment: .topTrailing) {
-                        Menu {
+                        if note.userName == userStorage.name {
                             Button(action: {
                                 // TODO
                             }) {
-                                Label("Сохранить", systemImage: "plus.square.on.square")
+                                Image(systemName: "square.and.pencil")
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(.black)
+                                    .padding(.trailing, 6)
                             }
-                            
-                            Button(action: {
-                                // TODO
-                            }) {
-                                Label("Предложить правку", systemImage: "paperplane")
+                        } else {
+                            Menu {
+                                Button(action: {
+                                    // TODO
+                                }) {
+                                    Label("Сохранить", systemImage: "plus.square.on.square")
+                                }
+                                
+                                Button(action: {
+                                    // TODO
+                                }) {
+                                    Label("Предложить правку", systemImage: "paperplane")
+                                }
+                                
+                                Button(action: {
+                                    // TODO
+                                }) {
+                                    Label("Перейти к автору", systemImage: "person")
+                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal")
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(.black)
+                                    .padding(.trailing, 6)
                             }
-                            
-                            Button(action: {
-                                // TODO
-                            }) {
-                                Label("Перейти к автору", systemImage: "person")
-                            }
-                        } label: {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(.black)
-                                .padding(.trailing, 6)
                         }
+                        
                     }
                     .frame(width: 44, height: 44)
                 }
@@ -95,33 +108,59 @@ struct ShowNoteView: View {
 
 #Preview {
     NavigationStack {
-        ShowNoteView(note: NoteMocks.notes.first!)
+        ShowNoteView(note: NoteMocks.notes.first!).environmentObject(UserStorage())
     }
 }
 
 private extension ShowNoteView {
     @ViewBuilder
     func imageView(for resource: NoteContentItem.ImageResource) -> some View {
-        switch resource {
-        case .asset(let name):
-            NavigationLink {
-                FullscreenImageView(imageName: name)
-            } label: {
-                Image(name)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-            }
-            .buttonStyle(.plain)
-        case .data(let data):
-            if let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
+        Group {
+            switch resource {
+            case .asset(let name):
+                if let uiImage = UIImage(named: name) {
+                    NavigationLink {
+                        FullscreenImageView(imageName: name)
+                    } label: {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 200)
+                        .overlay(
+                            VStack {
+                                Image(systemName: "photo")
+                                Text("\(name) не найдена")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(.secondary)
+                        )
+                }
+                
+            case .data(let data):
+                if let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                } else {
+                    Rectangle()
+                        .fill(Color.orange.opacity(0.3))
+                        .frame(height: 200)
+                        .overlay(
+                            Image(systemName: "exclamationmark.triangle")
+                                .foregroundColor(.orange)
+                        )
+                }
             }
         }
     }
+
 }
