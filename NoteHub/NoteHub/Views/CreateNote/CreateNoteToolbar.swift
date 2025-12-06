@@ -106,7 +106,7 @@ extension CreateNoteView {
             content: contentItems,
             color: palette.randomElement() ?? Color(red: 0.95, green: 0.98, blue: 1.0),
             isPublished: isPublished,
-            userName: userStorage.name.isEmpty ? "Аноним" : userStorage.name
+            userName: userStorage.currentUser!.name
         )
         
         notesStore.add(note)

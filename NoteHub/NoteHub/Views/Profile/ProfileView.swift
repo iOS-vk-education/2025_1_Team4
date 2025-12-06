@@ -13,7 +13,7 @@ struct ProfileView: View {
     @State private var showSettings = false
     
     private var username: String {
-        userStorage.name.isEmpty ? "Гость" : userStorage.name
+        userStorage.currentUser?.name ?? "Гость"
     }
     
     var body: some View {

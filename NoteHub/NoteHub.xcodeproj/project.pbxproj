@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		707F8FC52EE498FD00A09D98 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */; };
+		707F8FC72EE498FD00A09D98 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */; };
+		707F8FCA2EE49D8300A09D98 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC92EE49D8300A09D98 /* FirebaseAuth */; };
 		70E9B4A32F4C86F500CDE321 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 70E9B4A22F4C86F500CDE321 /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
@@ -27,7 +30,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				707F8FC52EE498FD00A09D98 /* FirebaseAnalytics in Frameworks */,
+				707F8FC72EE498FD00A09D98 /* FirebaseAnalyticsCore in Frameworks */,
 				70E9B4A32F4C86F500CDE321 /* MarkdownUI in Frameworks */,
+				707F8FCA2EE49D8300A09D98 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,6 +44,7 @@
 			isa = PBXGroup;
 			children = (
 				7001C6C92EBCCBF60064F01D /* NoteHub */,
+				707F8FC82EE49D8300A09D98 /* Frameworks */,
 				7001C6C82EBCCBF60064F01D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +55,13 @@
 				7001C6C72EBCCBF60064F01D /* NoteHub.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		707F8FC82EE49D8300A09D98 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -71,6 +85,9 @@
 			name = NoteHub;
 			packageProductDependencies = (
 				70E9B4A22F4C86F500CDE321 /* MarkdownUI */,
+				707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */,
+				707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */,
+				707F8FC92EE49D8300A09D98 /* FirebaseAuth */,
 			);
 			productName = NoteHub;
 			productReference = 7001C6C72EBCCBF60064F01D /* NoteHub.app */;
@@ -102,6 +119,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				70E9B4A12F4C86F500CDE321 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
+				707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7001C6C82EBCCBF60064F01D /* Products */;
@@ -260,7 +278,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 739TB48696;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -293,7 +311,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 739TB48696;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -343,6 +361,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.6.0;
+			};
+		};
 		70E9B4A12F4C86F500CDE321 /* XCRemoteSwiftPackageReference "MarkdownUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/gonzalezreal/MarkdownUI.git";
@@ -354,6 +380,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		707F8FC92EE49D8300A09D98 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		70E9B4A22F4C86F500CDE321 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 70E9B4A12F4C86F500CDE321 /* XCRemoteSwiftPackageReference "MarkdownUI" */;
