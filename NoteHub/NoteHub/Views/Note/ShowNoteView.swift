@@ -31,7 +31,7 @@ struct ShowNoteView: View {
                     Spacer()
                     
                     ZStack(alignment: .topTrailing) {
-                        if note.userName == userStorage.name {
+                        if note.userName == userStorage.currentUser!.name {
                             Button(action: {
                                 // TODO
                             }) {
