@@ -1,26 +1,22 @@
-//
-//  ProfileView.swift
-//  NoteHub
-//
-//  Created by Polina Sitnikova on 17.11.2025.
-//
-
 import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var store: NotesStore
     @EnvironmentObject private var userStorage: UserStorage
     @State private var showSettings = false
-    
+
     private var username: String {
         userStorage.currentUser?.name ?? "Гость"
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 if store.notes.isEmpty {
-                    EmptyProfileView(username: username, showSettings: $showSettings)
+                    EmptyProfileView(
+                        username: username,
+                        showSettings: $showSettings
+                    )
                 } else {
                     ProfileWithNotesView(
                         username: username,
@@ -44,3 +40,4 @@ struct ProfileView: View {
         .environmentObject(NotesStore())
         .environmentObject(UserStorage())
 }
+

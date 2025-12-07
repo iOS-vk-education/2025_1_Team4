@@ -47,13 +47,6 @@ struct ShowNoteView: View {
                                 }) {
                                     Label("Сохранить", systemImage: "plus.square.on.square")
                                 }
-                                
-                                Button(action: {
-                                    // TODO
-                                }) {
-                                    Label("Предложить правку", systemImage: "paperplane")
-                                }
-                                
                                 Button(action: {
                                     // TODO
                                 }) {
