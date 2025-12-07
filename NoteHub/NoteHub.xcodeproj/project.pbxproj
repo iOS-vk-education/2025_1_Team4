@@ -10,6 +10,7 @@
 		707F8FC52EE498FD00A09D98 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */; };
 		707F8FC72EE498FD00A09D98 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */; };
 		707F8FCA2EE49D8300A09D98 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC92EE49D8300A09D98 /* FirebaseAuth */; };
+		707F8FD62EE577A200A09D98 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FD52EE577A200A09D98 /* FirebaseFirestore */; };
 		70E9B4A32F4C86F500CDE321 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 70E9B4A22F4C86F500CDE321 /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
@@ -33,6 +34,7 @@
 				707F8FC52EE498FD00A09D98 /* FirebaseAnalytics in Frameworks */,
 				707F8FC72EE498FD00A09D98 /* FirebaseAnalyticsCore in Frameworks */,
 				70E9B4A32F4C86F500CDE321 /* MarkdownUI in Frameworks */,
+				707F8FD62EE577A200A09D98 /* FirebaseFirestore in Frameworks */,
 				707F8FCA2EE49D8300A09D98 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,6 +90,7 @@
 				707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */,
 				707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */,
 				707F8FC92EE49D8300A09D98 /* FirebaseAuth */,
+				707F8FD52EE577A200A09D98 /* FirebaseFirestore */,
 			);
 			productName = NoteHub;
 			productReference = 7001C6C72EBCCBF60064F01D /* NoteHub.app */;
@@ -394,6 +397,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		707F8FD52EE577A200A09D98 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 		70E9B4A22F4C86F500CDE321 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;

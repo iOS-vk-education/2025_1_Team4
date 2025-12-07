@@ -12,7 +12,7 @@ final class AuthManager {
     static let instance = AuthManager()
     private init() {}
     
-    func register(email: String, password: String, name: String) async throws -> AuthDataResultModel {
+    func register(email: String, password: String) async throws -> AuthDataResultModel {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
         return AuthDataResultModel(user: authResult.user)
     }
@@ -31,5 +31,26 @@ final class AuthManager {
     
     func logOut() throws {
         try Auth.auth().signOut()
+    }
+    
+    func updatePassword(newPassword: String) async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw URLError(.badServerResponse)
+        }
+        try await user.updatePassword(to: newPassword)
+    }
+    
+    func updateEmail(newEmail: String) async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw URLError(.badServerResponse)
+        }
+        try await user.updateEmail(to: newEmail)
+    }
+    
+    func delete() async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw URLError(.badServerResponse)
+        }
+        try await user.delete()
     }
 }

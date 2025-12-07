@@ -30,7 +30,7 @@ struct SettingsView: View {
                     }
 
                     Button {
-                        userStorage.logout()
+                        userStorage.delete()
                     } label: {
                         Text("Удалить аккаунт")
                             .frame(maxWidth: .infinity)

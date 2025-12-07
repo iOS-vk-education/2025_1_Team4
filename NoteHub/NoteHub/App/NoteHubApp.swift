@@ -26,7 +26,7 @@ struct NoteHubApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if userStorage.currentUser == nil {
+                if userStorage.authData == nil {
                     WelcomeView()
                 } else {
                     MainTabView()
@@ -38,7 +38,8 @@ struct NoteHubApp: App {
 //                }
             }
             .onAppear {
-                userStorage.loadUser()
+                userStorage.loadAuthData()
+                userStorage.loadCurrentUser()
             }
             .environmentObject(userStorage)
             .environmentObject(notesStore)
