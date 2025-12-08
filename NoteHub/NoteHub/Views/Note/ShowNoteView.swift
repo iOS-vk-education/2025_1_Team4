@@ -13,7 +13,8 @@ struct ShowNoteView: View {
     let note: Note
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var userStorage: UserStorage
-    
+    @State private var isEditing = false
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -33,7 +34,7 @@ struct ShowNoteView: View {
                     ZStack(alignment: .topTrailing) {
                         if note.userName == userStorage.name {
                             Button(action: {
-                                // TODO
+                                isEditing = true
                             }) {
                                 Image(systemName: "square.and.pencil")
                                     .font(.system(size: 24, weight: .medium))
@@ -99,10 +100,15 @@ struct ShowNoteView: View {
                     .padding(.bottom, 16)
                 }
                 .background(Color.white)
+                
+                
             }
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(true)
         }
+        .navigationDestination(isPresented: $isEditing) {
+                CreateNoteView(note: note)
+            }
     }
 }
 

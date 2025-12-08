@@ -3,6 +3,13 @@ import SwiftUI
 extension CreateNoteView {
     var topToolbar: some View {
         HStack(spacing: 18) {
+            
+            Button {
+                dismiss()
+            } label: {
+                toolbarIcon(systemName: "arrow.left")
+            }
+            
             Button {
                 withAnimation(.easeInOut) {
                     togglePreviewMode()
@@ -22,22 +29,23 @@ extension CreateNoteView {
             .disabled(stage == .creating || stage == .infoHint)
             
             Spacer()
-            
-            Button {
-                addTextSection()
-            } label: {
-                toolbarIcon(systemName: "plus")
-            }
-            .disabled(stage == .reading)
-            .opacity(stage == .reading ? 0 : 1)
-            .animation(.easeInOut(duration: 0.2), value: stage)
-            
-            Button {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    showHint.toggle()
+
+            Menu {
+                Button("Справка") {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                showHint.toggle()
+                    }
+                }
+                
+                Button("Снять с публикации") {
+                    // TODO:
+                }
+                
+                Button("Удалить") {
+                   // TODO:
                 }
             } label: {
-                toolbarIcon(systemName: "info.circle")
+                toolbarIcon(systemName: "ellipsis")
             }
             .disabled(stage == .reading)
             .opacity(stage == .reading ? 0 : 1)
@@ -49,7 +57,7 @@ extension CreateNoteView {
                     .presentationCompactAdaptation(.none)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 32)
     }
     
     func toolbarIcon(systemName: String) -> some View {

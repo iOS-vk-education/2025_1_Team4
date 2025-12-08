@@ -21,17 +21,19 @@ extension CreateNoteView {
                 }
             }
             
-            if stage == .reading {
-                readingContent
-            } else {
-                editableContent
-            }
+            ZStack {
+                            editableContent
+                                .opacity(stage == .reading ? 0 : 1)
+                                .allowsHitTesting(stage != .reading)
+
+                            readingContent
+                                .opacity(stage == .reading ? 1 : 0)
+                                .allowsHitTesting(stage == .reading)
+                        }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .shadow(color: Color.black.opacity(0.08), radius: 18, y: 10)
+        .background(Color("Modal_Background"))
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -47,18 +49,18 @@ extension CreateNoteView {
             VStack(spacing: 14) {
                 TextField("Заголовок", text: $noteTitle, axis: .vertical)
                     .font(.title3.weight(.semibold))
-                    .padding()
+                    .padding(.leading, 24)
+                    .padding(.vertical, 16)
                     .background(Color(red: 0.97, green: 0.98, blue: 1.0))
                     .clipShape(RoundedRectangle(cornerRadius: 18))
                     .onChange(of: noteTitle) { _, _ in handleTextChange() }
                 
                 ForEach($sections) { $section in
-                    sectionCard(for: $section)
+                    draggableSectionRow(for: $section)
                 }
                 
                 addSectionButtons
             }
-            .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity, minHeight: 360)
     }
@@ -81,6 +83,50 @@ extension CreateNoteView {
     }
     
     @ViewBuilder
+    private func draggableSectionRow(for section: Binding<NoteComposerSection>) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(width: 40)
+
+                Image(systemName: "line.3.horizontal")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .padding(.leading, 8)
+            }
+            .contentShape(Rectangle())
+            .onDrag {
+                draggingSection = section.wrappedValue
+
+                let provider = NSItemProvider()
+                let typeIdentifier = "com.notehub.note-section"
+
+                provider.registerDataRepresentation(
+                    forTypeIdentifier: typeIdentifier,
+                    visibility: .all
+                ) { completion in
+                    completion(Data(), nil)
+                    return nil
+                }
+
+                return provider
+            }
+            
+            
+            sectionCard(for: section)
+        }
+        .onDrop(
+            of: ["com.notehub.note-section"],
+            delegate: SectionDropDelegate(
+                item: section.wrappedValue,
+                sections: $sections,
+                draggingItem: $draggingSection
+            )
+        )
+    }
+
+    @ViewBuilder
     private func sectionCard(for section: Binding<NoteComposerSection>) -> some View {
         switch section.wrappedValue.kind {
         case .text:
@@ -94,7 +140,6 @@ extension CreateNoteView {
     private func textSectionCard(for section: Binding<NoteComposerSection>) -> some View {
         ZStack(alignment: .topLeading) {
             TextEditor(text: section.text)
-                .frame(minHeight: 160)
                 .scrollContentBackground(.hidden)
                 .padding()
                 .background(Color(red: 0.97, green: 0.98, blue: 1.0))
@@ -105,7 +150,7 @@ extension CreateNoteView {
                 Text("Введите текст")
                     .foregroundColor(.secondary)
                     .padding(.leading, 24)
-                    .padding(.top, 16)
+                    .padding(.vertical, 16)
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -166,13 +211,26 @@ extension CreateNoteView {
             Divider()
                 .padding(.top, 8)
             
-            HStack(spacing: 12) {
-                addSectionButton(title: "Добавить текст", systemImage: "plus.circle", isPrimary: true) {
-                    addTextSection()
+            HStack(spacing: 0) {
+                Menu {
+                    Button("Добавить фото") {
+                        addImageSection()
+                    }
+                                
+                    Button("Снять фото") {
+                        addImageSection()
+                    }
+                } label: {
+                    Image(systemName: "photo.on.rectangle")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.blue)
+                        .padding(.trailing, 20)
+                        .padding(.leading, 12)
+                        .frame(height: 52)
                 }
                 
-                addSectionButton(title: "Добавить фото", systemImage: "photo.on.rectangle", isPrimary: false) {
-                    addImageSection()
+                addSectionButton(title: "Добавить текст", /*systemImage: "plus.circle", */isPrimary: true) {
+                    addTextSection()
                 }
             }
         }
@@ -251,11 +309,11 @@ extension CreateNoteView {
     }
     
     @ViewBuilder
-    private func addSectionButton(title: String, systemImage: String, isPrimary: Bool, action: @escaping () -> Void) -> some View {
+    private func addSectionButton(title: String, /*systemImage: String, */isPrimary: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 8) {
-                Image(systemName: systemImage)
-                    .font(.system(size: 18, weight: .semibold))
+//                Image(systemName: systemImage)
+//                    .font(.system(size: 18, weight: .semibold))
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
             }
@@ -263,8 +321,44 @@ extension CreateNoteView {
             .padding(.vertical, 12)
             .background(isPrimary ? Color.blue : Color.gray.opacity(0.2))
             .foregroundColor(isPrimary ? .white : .blue)
-            .clipShape(Capsule())
+            .clipShape(RoundedRectangle(cornerRadius: 18))
         }
     }
 }
 
+struct SectionDropDelegate: DropDelegate {
+    let item: NoteComposerSection
+    @Binding var sections: [NoteComposerSection]
+    @Binding var draggingItem: NoteComposerSection?
+    
+    func dropEntered(info: DropInfo) {
+        guard let draggingItem else {
+            return
+        }
+        if draggingItem == item {
+            return
+        }
+        
+        guard let fromIndex = sections.firstIndex(of: draggingItem),
+              let toIndex = sections.firstIndex(of: item) else { return }
+        
+        
+        if sections[toIndex] != draggingItem {
+            withAnimation(.default) {
+                sections.move(
+                    fromOffsets: IndexSet(integer: fromIndex),
+                    toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex
+                )
+            }
+        }
+    }
+    
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+    
+    func performDrop(info: DropInfo) -> Bool {
+        draggingItem = nil
+        return true
+    }
+}
