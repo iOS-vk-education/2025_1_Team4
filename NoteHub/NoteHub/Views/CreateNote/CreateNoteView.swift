@@ -15,6 +15,7 @@ struct CreateNoteView: View {
         case reading
         case infoHint
     }
+    @Environment(\.dismiss) var dismiss
     
     @EnvironmentObject var notesStore: NotesStore
     @EnvironmentObject var userStorage: UserStorage
@@ -22,10 +23,36 @@ struct CreateNoteView: View {
     @State var stage: Stage = .creating
     @State var noteTitle: String = ""
     @State var sections: [NoteComposerSection] = [.textSection()]
+    @State var draggingSection: NoteComposerSection?
     @State var isPublishedFlag: Bool = false
     @State var showHint: Bool = false
     @State var photoSelections: [UUID: PhotosPickerItem?] = [:]
     
+    init() { }
+
+     init(note: Note) {
+        _noteTitle = State(initialValue: note.title)
+
+        _sections = State(initialValue: note.content.map { item in
+            switch item {
+            case .text(_, let value):
+                return NoteComposerSection(kind: .text, text: value)
+
+            case .image(_, let resource):
+                switch resource {
+                case .data(let data):
+                    return NoteComposerSection(kind: .image, imageData: data)
+                case .asset:
+                    return NoteComposerSection(kind: .image)
+                }
+            }
+        })
+        
+         _isPublishedFlag = State(initialValue: note.isPublished)
+
+        _stage = State(initialValue: .editing)
+    }
+
     var body: some View {
         ZStack {
             Color("Main_Background")
@@ -34,11 +61,7 @@ struct CreateNoteView: View {
             VStack(spacing: 16) {
                 topToolbar
                 editor
-                Spacer()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 12)
         }
         .overlay(
             Color.black.opacity(showHint ? 0.2 : 0)
@@ -61,6 +84,8 @@ struct CreateNoteView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: stage)
+        .navigationBarBackButtonHidden(true)
+                .navigationBarHidden(true)
     }
 }
 
