@@ -9,14 +9,15 @@ import Foundation
 import SwiftUI
 import Combine
 
-struct Note: Identifiable {
-    let id = UUID()
+struct DBNote: Identifiable {
+    let nid: String
     let title: String
-    let content: [NoteContentItem]
     let color: Color
     let isPublished: Bool
-    let userName: String
+    let owner: DBUser
+    let content: [DBNoteContentItem]
     
+    var id: String { nid }
     var preview: String {
         content.compactMap {
             if case let .text(_, value) = $0 { value } else { nil }

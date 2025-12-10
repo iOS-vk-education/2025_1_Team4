@@ -3,11 +3,11 @@ import SwiftUI
 struct MainPageView: View {
     @State private var searchText = ""
     @State private var isLoading = false // TODO: сюда потом подцепить notesStore.isLoading
-    @EnvironmentObject private var notesStore: NotesStore
+    @EnvironmentObject private var notesStorage: NotesStorage
     
-    private var filteredNotes: [Note] {
-        guard !searchText.isEmpty else { return notesStore.notes }
-        return notesStore.notes.filter {
+    private var filteredNotes: [DBNote] {
+        guard !searchText.isEmpty else { return notesStorage.notes }
+        return notesStorage.notes.filter {
             $0.title.localizedCaseInsensitiveContains(searchText) ||
             $0.preview.localizedCaseInsensitiveContains(searchText)
         }
@@ -45,6 +45,8 @@ struct MainPageView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+            }.onAppear {
+                notesStorage.loadNotes()
             }
         }
     }
@@ -100,7 +102,7 @@ struct EmptySearchStateView: View {
 struct MainPageView_Previews: PreviewProvider {
     static var previews: some View {
         MainPageView()
-            .environmentObject(NotesStore())
+            .environmentObject(NotesStorage())
     }
 }
 

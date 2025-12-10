@@ -17,6 +17,7 @@ struct MainTabView: View {
                     switch selectedTab {
                     case .main:
                         MainPageView()
+                            .environmentObject(NotesStorage())
                     case .new:
                         CreateNoteView()
                     case .profile:
@@ -40,6 +41,5 @@ enum Tab: Int {
 
 #Preview {
     MainTabView()
-        .environmentObject(NotesStore())
         .environmentObject(UserStorage())
 }

@@ -61,7 +61,7 @@ struct ProfileFilterMenu: View {
 
 struct ProfileWithNotesView: View {
     let username: String
-    let notes: [Note]
+    let notes: [DBNote]
     @Binding var showSettings: Bool
     let notesCount: Int
     let publishedCount: Int
@@ -70,16 +70,16 @@ struct ProfileWithNotesView: View {
     @State private var showFilterMenu = false
     
     // Отфильтрованные заметки
-    private var filteredNotes: [Note] {
+    private var filteredNotes: [DBNote] {
         switch selectedFilter {
         case .all:
             return notes
         case .drafts:
             // мои и не опубликованные
-            return notes.filter { !$0.isPublished && $0.userName == username }
+            return notes.filter { !$0.isPublished && $0.owner.name == username }
         case .published:
             // мои и опубликованные
-            return notes.filter { $0.isPublished && $0.userName == username }
+            return notes.filter { $0.isPublished && $0.owner.name == username }
         }
     }
     
@@ -153,20 +153,9 @@ struct ProfileWithNotesView: View {
 
 #Preview {
     // моковые данные для превью
-    let notes = [
-        Note(title: "Черновик 1",
-             content: [],
-             color: .yellow,
-             isPublished: false,
-             userName: "petrpetrov"),
-        Note(title: "Опубликованная 1",
-             content: [],
-             color: .green,
-             isPublished: true,
-             userName: "petrpetrov")
-    ]
+    let notes = NoteMocks.notes
     
-    return ProfileWithNotesView(
+    ProfileWithNotesView(
         username: "petrpetrov",
         notes: notes,
         showSettings: .constant(false),
