@@ -418,7 +418,7 @@ struct SettingsView: View {
                     message: Text("Вы уверены, что хотите выйти из аккаунта \(email)?"),
                     primaryButton: .cancel(Text("Отмена")),
                     secondaryButton: .destructive(Text("Выйти")) {
-                        // TODO: userStorage.logout()
+                        userStorage.logout()
                         dismiss()
                     }
                 )
@@ -428,7 +428,7 @@ struct SettingsView: View {
                     message: Text("Все созданные заметки будут безвозвратно удалены.\nВы уверены, что хотите удалить аккаунт \(email)?"),
                     primaryButton: .cancel(Text("Отмена")),
                     secondaryButton: .destructive(Text("Удалить")) {
-                        // TODO: userStorage.deleteAccount()
+                        userStorage.delete()
                         dismiss()
                     }
                 )
