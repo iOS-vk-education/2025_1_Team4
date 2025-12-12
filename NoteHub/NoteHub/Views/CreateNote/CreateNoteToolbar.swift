@@ -98,8 +98,8 @@ extension CreateNoteView {
     
     func persistNote(isPublished: Bool) {
         guard hasContent else { return }
-        let contentItems = sections.compactMap { $0.makeContentItem() }
-        guard !contentItems.isEmpty else { return }
+        let createContentItemRequests = sections.compactMap { $0.makeCreateContentItemRequest() }
+        guard !createContentItemRequests.isEmpty else { return }
         
         let sanitizedTitle = noteTitle.trimmed.isEmpty ? "Без названия" : noteTitle.trimmed
         let palette: [Color] = [
@@ -108,16 +108,24 @@ extension CreateNoteView {
             Color(red: 0.99, green: 0.94, blue: 0.88),
             Color(red: 0.90, green: 0.96, blue: 0.93)
         ]
-        
-        let note = Note(
+
+        let createNoteRequest = CreateNoteRequest(
             title: sanitizedTitle,
-            content: contentItems,
             color: palette.randomElement() ?? Color(red: 0.95, green: 0.98, blue: 1.0),
             isPublished: isPublished,
-            userName: userStorage.currentUser!.name
+            owner: userStorage.currentUser!,
+            content: createContentItemRequests,
         )
         
-        notesStore.add(note)
+        Task {
+            do {
+                let dbNote = try await NotesManager.instance.createNote(createNoteRequest: createNoteRequest)
+                print("Create new note with nid: \(dbNote.nid)")
+            } catch {
+                print("Create new note error: \(error)")
+            }
+        }
+        
         isPublishedFlag = isPublished
         stage = .reading
     }

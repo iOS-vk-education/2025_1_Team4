@@ -42,14 +42,14 @@ struct NoteComposerSection: Identifiable, Equatable {
         }
     }
     
-    func makeContentItem() -> NoteContentItem? {
+    func makeCreateContentItemRequest() -> CreateNoteContentItemRequest? {
         switch kind {
         case .text:
             let trimmed = text.trimmed
             return trimmed.isEmpty ? nil : .text(value: text)
         case .image:
             guard let data = imageData else { return nil }
-            return .image(resource: .data(data))
+            return .image(createImageRequest: CreateImageRequest(data: data))
         }
     }
 }

@@ -17,7 +17,6 @@ struct CreateNoteView: View {
     }
     @Environment(\.dismiss) var dismiss
     
-    @EnvironmentObject var notesStore: NotesStore
     @EnvironmentObject var userStorage: UserStorage
     
     @State var stage: Stage = .creating
@@ -30,21 +29,15 @@ struct CreateNoteView: View {
     
     init() { }
 
-     init(note: Note) {
+     init(note: DBNote) {
         _noteTitle = State(initialValue: note.title)
 
         _sections = State(initialValue: note.content.map { item in
             switch item {
             case .text(_, let value):
                 return NoteComposerSection(kind: .text, text: value)
-
-            case .image(_, let resource):
-                switch resource {
-                case .data(let data):
-                    return NoteComposerSection(kind: .image, imageData: data)
-                case .asset:
-                    return NoteComposerSection(kind: .image)
-                }
+            case .image(_, let dbImage):
+                return NoteComposerSection(kind: .image, imageData: dbImage.data)
             }
         })
         
@@ -91,7 +84,6 @@ struct CreateNoteView: View {
 
 #Preview {
     CreateNoteView()
-        .environmentObject(NotesStore())
         .environmentObject(UserStorage())
 }
 

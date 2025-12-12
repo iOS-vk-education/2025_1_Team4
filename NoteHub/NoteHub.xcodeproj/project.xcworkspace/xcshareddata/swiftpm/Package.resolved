@@ -1,5 +1,5 @@
 {
-  "originHash" : "416ae9a2e3887e32e901e5d555c6ccbed6c0c429e0bcf62efb47b3b1f30253b0",
+  "originHash" : "1cde0b29c47c0bc77f2f0ba7e5a08daa6ce7db21400de0388cabe97f757e91ac",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "cloudinary_ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cloudinary/cloudinary_ios.git",
+      "state" : {
+        "revision" : "5e709fb159fa2ffa82d8dd6e29b24656920c114b",
+        "version" : "5.2.4"
       }
     },
     {
@@ -152,6 +161,15 @@
       "state" : {
         "revision" : "c169a5744230951031770e27e475ff6eefe51f9d",
         "version" : "1.33.3"
+      }
+    },
+    {
+      "identity" : "uicolor-hex-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yeahdongcn/UIColor-Hex-Swift.git",
+      "state" : {
+        "revision" : "f37f97bc1a5b545b39ab5330e133e56fa4f38cff",
+        "version" : "5.1.9"
       }
     }
   ],

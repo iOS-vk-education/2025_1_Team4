@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FullscreenImageView: View {
-    let imageName: String
+    let uiImage: UIImage
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -29,7 +29,7 @@ struct FullscreenImageView: View {
             .padding(.leading, 16)
 
             Spacer()
-            Image(imageName)
+            Image(uiImage: uiImage)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .background(Color.black)
@@ -44,6 +44,6 @@ struct FullscreenImageView: View {
 
 #Preview {
     NavigationStack {
-        FullscreenImageView(imageName: "Cat_Image")
+        FullscreenImageView(uiImage: UIImage(named: "Cat_Image")!)
     }
 }

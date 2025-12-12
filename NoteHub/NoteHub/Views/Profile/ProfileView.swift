@@ -1,8 +1,9 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @EnvironmentObject private var store: NotesStore
     @EnvironmentObject private var userStorage: UserStorage
+    @EnvironmentObject private var notesStorage: NotesStorage
+
     @State private var showSettings = false
 
     private var username: String {
@@ -12,7 +13,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if store.notes.isEmpty {
+                if notesStorage.notes.isEmpty {
                     EmptyProfileView(
                         username: username,
                         showSettings: $showSettings
@@ -20,17 +21,19 @@ struct ProfileView: View {
                 } else {
                     ProfileWithNotesView(
                         username: username,
-                        notes: store.notes,
+                        notes: notesStorage.notes,
                         showSettings: $showSettings,
-                        notesCount: store.notes.count,
-                        publishedCount: store.publishedCount
+                        notesCount: notesStorage.notes.count,
+                        publishedCount: notesStorage.publishedCount
                     )
                 }
+            }
+            .onAppear {
+                notesStorage.loadNotes()
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView()
-                .environmentObject(userStorage)
                 .interactiveDismissDisabled()
         }
     }
@@ -38,7 +41,7 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
-        .environmentObject(NotesStore())
+        .environmentObject(NotesStorage())
         .environmentObject(UserStorage())
 }
 

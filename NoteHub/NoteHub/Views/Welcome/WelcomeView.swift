@@ -48,5 +48,4 @@ struct WelcomeView: View {
 #Preview {
     WelcomeView()
         .environmentObject(UserStorage())
-        .environmentObject(NotesStore())
 }
