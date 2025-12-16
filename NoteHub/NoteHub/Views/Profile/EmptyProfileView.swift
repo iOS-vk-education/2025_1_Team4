@@ -12,10 +12,8 @@ struct EmptyProfileView: View {
             VStack(spacing: 0) {
                 ProfileHeaderView(
                     username: username,
-                    notesCount: 0,
-                    publishedCount: 0,
+                    notes: [],
                     showSettings: $showSettings
-                    // showsFilter = false - иконки фильтра нет
                 )
                 
                 Spacer()
