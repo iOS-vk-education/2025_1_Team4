@@ -171,18 +171,36 @@ extension CreateNoteView {
     @ViewBuilder
     private func imageSectionCard(for section: Binding<NoteComposerSection>) -> some View {
         let sectionID = section.wrappedValue.id
-        PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
-            ZStack {
-                if let data = section.wrappedValue.imageData, let image = UIImage(data: data) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                } else {
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(Color(red: 0.97, green: 0.98, blue: 1.0))
-                        .frame(minHeight: 200)
+        ZStack(alignment: .center) {
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color(red: 0.97, green: 0.98, blue: 1.0))
+                .frame(minHeight: 200)
+            
+            if let data = section.wrappedValue.imageData, let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+            } else {
+                Menu {
+                    Button {
+                        photoLibrarySectionID = sectionID
+                        showPhotoLibrary = true
+                    } label: {
+                        Label("Выбрать из галереи", systemImage: "photo.on.rectangle")
+                    }
+                    
+                    Button {
+                        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+                            return
+                        }
+                        checkCameraPermissionAndOpen(sectionID: sectionID)
+                    } label: {
+                        Label("Снять фото", systemImage: "camera")
+                    }
+                    .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+                } label: {
                     VStack(spacing: 8) {
                         Image(systemName: "photo.on.rectangle.angled")
                             .font(.system(size: 36, weight: .medium))
@@ -200,8 +218,11 @@ extension CreateNoteView {
         .overlay(alignment: .bottomTrailing) {
             if section.wrappedValue.imageData != nil {
                 Menu {
-                    PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
-                        Label("Изменить фото", systemImage: "photo.on.rectangle")
+                    Button {
+                        photoLibrarySectionID = sectionID
+                        showPhotoLibrary = true
+                    } label: {
+                        Label("Выбрать из галереи", systemImage: "photo.on.rectangle")
                     }
                     
                     Button {
@@ -266,7 +287,7 @@ extension CreateNoteView {
         .animation(.easeInOut(duration: 0.2), value: stage)
     }
     
-    private func pickerBinding(for sectionID: UUID) -> Binding<PhotosPickerItem?> {
+    func pickerBinding(for sectionID: UUID) -> Binding<PhotosPickerItem?> {
         Binding(
             get: { photoSelections[sectionID] ?? nil },
             set: { newValue in

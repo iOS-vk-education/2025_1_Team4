@@ -34,6 +34,9 @@ struct CreateNoteView: View {
     @State var cameraImage: UIImage? = nil
     @State var cameraSectionID: UUID? = nil
     @State var showCameraPermissionAlert: Bool = false
+    @State var showPhotoLibrary: Bool = false
+    @State var photoLibraryImage: UIImage? = nil
+    @State var photoLibrarySectionID: UUID? = nil
     
     init() { }
 
@@ -97,6 +100,9 @@ struct CreateNoteView: View {
                     }
                 }
         }
+        .sheet(isPresented: $showPhotoLibrary) {
+            PhotoLibraryPickerView(isPresented: $showPhotoLibrary, selectedImage: $photoLibraryImage)
+        }
         .alert("Доступ к камере", isPresented: $showCameraPermissionAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Настройки") {
@@ -119,6 +125,29 @@ struct CreateNoteView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     cameraImage = nil
                     cameraSectionID = nil
+                }
+            }
+        }
+        .onChange(of: photoLibraryImage) { _, newImage in
+            if let image = newImage, let sectionID = photoLibrarySectionID {
+                if let imageData = image.jpegData(compressionQuality: 0.8) {
+                    if let index = sections.firstIndex(where: { $0.id == sectionID }) {
+                        sections[index].imageData = imageData
+                        handleTextChange()
+                    }
+                }
+                // Сбрасываем после небольшой задержки
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    photoLibraryImage = nil
+                    photoLibrarySectionID = nil
+                }
+            }
+        }
+        .onChange(of: showPhotoLibrary) { _, isShowing in
+            if !isShowing {
+                // Если галерея закрылась без фото, сбрасываем sectionID
+                if photoLibraryImage == nil {
+                    photoLibrarySectionID = nil
                 }
             }
         }
