@@ -27,6 +27,7 @@ struct CreateNoteView: View {
     @State var isPublishedFlag: Bool = false
     @State var showHint: Bool = false
     @State var photoSelections: [UUID: PhotosPickerItem?] = [:]
+    @FocusState var focusedTextSectionID: UUID?
     @State var isSaving: Bool = false
     @State var savingMessage: String? = nil
     @State var showCamera: Bool = false
