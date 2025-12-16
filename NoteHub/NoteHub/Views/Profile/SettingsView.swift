@@ -245,6 +245,24 @@ struct ChangeNameView: View {
                         .cornerRadius(10)
                 }
             }
+            .padding(.horizontal, 24)
+        }
+    }
+    
+    private func settingsRow(
+        title: String,
+        textColor: Color = .blue,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 17))
+                    .foregroundColor(textColor)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
         .navigationBarBackButtonHidden(true)
     }
