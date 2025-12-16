@@ -1,10 +1,3 @@
-//
-//  EmptyProfileView.swift
-//  NoteHub
-//
-//  Created by Polina Sitnikova on 17.11.2025.
-//
-
 import SwiftUI
 
 struct EmptyProfileView: View {
@@ -22,6 +15,7 @@ struct EmptyProfileView: View {
                     notesCount: 0,
                     publishedCount: 0,
                     showSettings: $showSettings
+                    // showsFilter = false - иконки фильтра нет
                 )
                 
                 Spacer()

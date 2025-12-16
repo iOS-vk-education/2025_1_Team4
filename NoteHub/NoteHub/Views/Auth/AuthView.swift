@@ -43,7 +43,7 @@ struct AuthView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
 
-                            TextField("example@mail.ru", text: $viewModel.login)
+                            TextField("example@mail.ru", text: $viewModel.login) // TODO убирать пробельные символы по бокам
                                 .textFieldStyle(AppTextFieldStyle())
                         }
 
@@ -102,7 +102,7 @@ struct AuthView: View {
     }
 
     private func login() {
-        userStorage.login(as: viewModel.login)
+        userStorage.login(viewModel: viewModel)
     }
 
 }

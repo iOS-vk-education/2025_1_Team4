@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		70088BA22EEC780C00C8D66E /* Cloudinary in Frameworks */ = {isa = PBXBuildFile; productRef = 70088BA12EEC780C00C8D66E /* Cloudinary */; };
+		7020D0F12EE8B7A700EB45C3 /* UIColorHexSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7020D0F02EE8B7A700EB45C3 /* UIColorHexSwift */; };
+		707F8FC52EE498FD00A09D98 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */; };
+		707F8FC72EE498FD00A09D98 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */; };
+		707F8FCA2EE49D8300A09D98 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FC92EE49D8300A09D98 /* FirebaseAuth */; };
+		707F8FD62EE577A200A09D98 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 707F8FD52EE577A200A09D98 /* FirebaseFirestore */; };
+		709701282EEA1342002F07C1 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 709701272EEA1342002F07C1 /* FirebaseStorage */; };
 		70E9B4A32F4C86F500CDE321 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 70E9B4A22F4C86F500CDE321 /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
@@ -27,7 +34,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7020D0F12EE8B7A700EB45C3 /* UIColorHexSwift in Frameworks */,
+				707F8FC52EE498FD00A09D98 /* FirebaseAnalytics in Frameworks */,
+				707F8FC72EE498FD00A09D98 /* FirebaseAnalyticsCore in Frameworks */,
 				70E9B4A32F4C86F500CDE321 /* MarkdownUI in Frameworks */,
+				70088BA22EEC780C00C8D66E /* Cloudinary in Frameworks */,
+				709701282EEA1342002F07C1 /* FirebaseStorage in Frameworks */,
+				707F8FD62EE577A200A09D98 /* FirebaseFirestore in Frameworks */,
+				707F8FCA2EE49D8300A09D98 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,6 +52,7 @@
 			isa = PBXGroup;
 			children = (
 				7001C6C92EBCCBF60064F01D /* NoteHub */,
+				707F8FC82EE49D8300A09D98 /* Frameworks */,
 				7001C6C82EBCCBF60064F01D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +63,13 @@
 				7001C6C72EBCCBF60064F01D /* NoteHub.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		707F8FC82EE49D8300A09D98 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -71,6 +93,13 @@
 			name = NoteHub;
 			packageProductDependencies = (
 				70E9B4A22F4C86F500CDE321 /* MarkdownUI */,
+				707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */,
+				707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */,
+				707F8FC92EE49D8300A09D98 /* FirebaseAuth */,
+				707F8FD52EE577A200A09D98 /* FirebaseFirestore */,
+				7020D0F02EE8B7A700EB45C3 /* UIColorHexSwift */,
+				709701272EEA1342002F07C1 /* FirebaseStorage */,
+				70088BA12EEC780C00C8D66E /* Cloudinary */,
 			);
 			productName = NoteHub;
 			productReference = 7001C6C72EBCCBF60064F01D /* NoteHub.app */;
@@ -102,6 +131,9 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				70E9B4A12F4C86F500CDE321 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
+				707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				7020D0EF2EE8B7A700EB45C3 /* XCRemoteSwiftPackageReference "UIColor-Hex-Swift" */,
+				70088BA02EEC780C00C8D66E /* XCRemoteSwiftPackageReference "cloudinary_ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7001C6C82EBCCBF60064F01D /* Products */;
@@ -263,12 +295,13 @@
 				DEVELOPMENT_TEAM = 739TB48696;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Приложению необходим доступ к камере для съемки фотографий к заметкам";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -296,12 +329,13 @@
 				DEVELOPMENT_TEAM = 739TB48696;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Приложению необходим доступ к камере для съемки фотографий к заметкам";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -343,6 +377,30 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		70088BA02EEC780C00C8D66E /* XCRemoteSwiftPackageReference "cloudinary_ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cloudinary/cloudinary_ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.4;
+			};
+		};
+		7020D0EF2EE8B7A700EB45C3 /* XCRemoteSwiftPackageReference "UIColor-Hex-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yeahdongcn/UIColor-Hex-Swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.9;
+			};
+		};
+		707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.6.0;
+			};
+		};
 		70E9B4A12F4C86F500CDE321 /* XCRemoteSwiftPackageReference "MarkdownUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/gonzalezreal/MarkdownUI.git";
@@ -354,6 +412,41 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		70088BA12EEC780C00C8D66E /* Cloudinary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 70088BA02EEC780C00C8D66E /* XCRemoteSwiftPackageReference "cloudinary_ios" */;
+			productName = Cloudinary;
+		};
+		7020D0F02EE8B7A700EB45C3 /* UIColorHexSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7020D0EF2EE8B7A700EB45C3 /* XCRemoteSwiftPackageReference "UIColor-Hex-Swift" */;
+			productName = UIColorHexSwift;
+		};
+		707F8FC42EE498FD00A09D98 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		707F8FC62EE498FD00A09D98 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		707F8FC92EE49D8300A09D98 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		707F8FD52EE577A200A09D98 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		709701272EEA1342002F07C1 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 707F8FC32EE498FD00A09D98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		70E9B4A22F4C86F500CDE321 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 70E9B4A12F4C86F500CDE321 /* XCRemoteSwiftPackageReference "MarkdownUI" */;

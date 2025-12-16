@@ -48,7 +48,7 @@ struct RegistrationView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             
-                            TextField("example@mail.ru", text: $viewModel.login)
+                            TextField("example@mail.ru", text: $viewModel.login) // TODO убирать пробельные символы по бокам
                                 .textFieldStyle(AppTextFieldStyle())
                         }
                         
@@ -57,7 +57,7 @@ struct RegistrationView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             
-                            TextField("Иван Иванов", text: $viewModel.name)
+                            TextField("Иван Иванов", text: $viewModel.name) // TODO убирать пробельные символы по бокам
                                 .textFieldStyle(AppTextFieldStyle())
                         }
                         
@@ -125,7 +125,7 @@ struct RegistrationView: View {
     }
     
     private func register() {
-        userStorage.login(as: viewModel.name.isEmpty ? viewModel.login : viewModel.name)
+        userStorage.register(viewModel: viewModel)
         dismiss()
     }
 }

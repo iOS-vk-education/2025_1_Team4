@@ -10,7 +10,7 @@ import UIKit
 import MarkdownUI
 
 struct ShowNoteView: View {
-    let note: Note
+    let note: DBNote
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var userStorage: UserStorage
     @State private var isEditing = false
@@ -32,7 +32,7 @@ struct ShowNoteView: View {
                     Spacer()
                     
                     ZStack(alignment: .topTrailing) {
-                        if note.userName == userStorage.name {
+                        if note.owner.name == userStorage.currentUser!.name {
                             Button(action: {
                                 isEditing = true
                             }) {
@@ -48,13 +48,6 @@ struct ShowNoteView: View {
                                 }) {
                                     Label("Сохранить", systemImage: "plus.square.on.square")
                                 }
-                                
-                                Button(action: {
-                                    // TODO
-                                }) {
-                                    Label("Предложить правку", systemImage: "paperplane")
-                                }
-                                
                                 Button(action: {
                                     // TODO
                                 }) {
@@ -84,17 +77,38 @@ struct ShowNoteView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 12)
                         
-                        ForEach(note.content, id: \.id) { item in
+                        ForEach(note.content) { item in
                             switch item {
                             case .text(_, let value):
                                 Markdown(sanitizeMarkdown(value))
                                     .markdownTheme(.gitHub)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                            case .image(_, let resource):
-                                imageView(for: resource)
+                            case .image(_, let image):
+                                if let uiImage = UIImage(data: image.data) {
+                                    NavigationLink {
+                                        FullscreenImageView(uiImage: uiImage)
+                                    } label: {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(maxWidth: .infinity)
+                                            .clipped()
+                                    }
+                                    .buttonStyle(.plain)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                } else {
+                                    Rectangle()
+                                        .fill(Color.orange.opacity(0.3))
+                                        .frame(height: 200)
+                                        .overlay(
+                                            Image(systemName: "exclamationmark.triangle")
+                                                .foregroundColor(.orange)
+                                        )
+                                }
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
                     .background(Color.white)
                     .padding(.bottom, 16)
@@ -116,57 +130,4 @@ struct ShowNoteView: View {
     NavigationStack {
         ShowNoteView(note: NoteMocks.notes.first!).environmentObject(UserStorage())
     }
-}
-
-private extension ShowNoteView {
-    @ViewBuilder
-    func imageView(for resource: NoteContentItem.ImageResource) -> some View {
-        Group {
-            switch resource {
-            case .asset(let name):
-                if let uiImage = UIImage(named: name) {
-                    NavigationLink {
-                        FullscreenImageView(imageName: name)
-                    } label: {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 200)
-                        .overlay(
-                            VStack {
-                                Image(systemName: "photo")
-                                Text("\(name) не найдена")
-                                    .font(.caption)
-                            }
-                            .foregroundColor(.secondary)
-                        )
-                }
-                
-            case .data(let data):
-                if let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-                } else {
-                    Rectangle()
-                        .fill(Color.orange.opacity(0.3))
-                        .frame(height: 200)
-                        .overlay(
-                            Image(systemName: "exclamationmark.triangle")
-                                .foregroundColor(.orange)
-                        )
-                }
-            }
-        }
-    }
-
 }
