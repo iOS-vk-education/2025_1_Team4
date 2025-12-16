@@ -30,6 +30,16 @@ final class UserManager {
         return dbUser
     }
     
+    func updateUserEmail(newEmail: String) async throws -> DBUser {
+        guard let user = AuthManager.instance.getAuthenticatedUser() else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        try await Firestore.firestore().collection("users").document(user.uid).updateData([
+            "email": newEmail
+        ])
+        return try await getUser(uid: user.uid)
+    }
+    
     func deleteUser(uid: String) async throws {
         try await Firestore.firestore().collection("users").document(uid).delete()
     }

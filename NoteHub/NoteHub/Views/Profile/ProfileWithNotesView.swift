@@ -4,7 +4,6 @@ import SwiftUI
 enum ProfileNotesFilter: String, CaseIterable, Identifiable {
     case drafts
     case published
-    case saved
     case all
     
     var id: String { rawValue }
@@ -14,7 +13,6 @@ enum ProfileNotesFilter: String, CaseIterable, Identifiable {
         switch self {
         case .drafts:    return "Только черновики"
         case .published: return "Только опубликованные"
-        case .saved:     return "Сохранённые"
         case .all:       return "Все"
         }
     }
@@ -24,7 +22,6 @@ enum ProfileNotesFilter: String, CaseIterable, Identifiable {
         switch self {
         case .drafts:    return "только черновики"
         case .published: return "только опубликованные"
-        case .saved:     return "сохранённые"
         case .all:       return ""
         }
     }
@@ -64,7 +61,7 @@ struct ProfileFilterMenu: View {
 
 struct ProfileWithNotesView: View {
     let username: String
-    let notes: [Note]
+    let notes: [DBNote]
     @Binding var showSettings: Bool
     let notesCount: Int
     let publishedCount: Int
@@ -73,19 +70,16 @@ struct ProfileWithNotesView: View {
     @State private var showFilterMenu = false
     
     // Отфильтрованные заметки
-    private var filteredNotes: [Note] {
+    private var filteredNotes: [DBNote] {
         switch selectedFilter {
         case .all:
             return notes
         case .drafts:
             // мои и не опубликованные
-            return notes.filter { !$0.isPublished && $0.userName == username }
+            return notes.filter { !$0.isPublished && $0.owner.name == username }
         case .published:
             // мои и опубликованные
-            return notes.filter { $0.isPublished && $0.userName == username }
-        case .saved:
-            // сохраненные, автор не я
-            return notes.filter { $0.isPublished && $0.userName != username }
+            return notes.filter { $0.isPublished && $0.owner.name == username }
         }
     }
     
@@ -102,8 +96,7 @@ struct ProfileWithNotesView: View {
                 VStack(spacing: 0) {
                     ProfileHeaderView(
                         username: username,
-                        notesCount: notesCount,
-                        publishedCount: publishedCount,
+                        notes: notes.filter { $0.owner.name == username },
                         showSettings: $showSettings,
                         showsFilter: notesCount > 0,
                         isFilterActive: isFilterActive,
@@ -150,7 +143,7 @@ struct ProfileWithNotesView: View {
                         }
                     )
                     .padding(.trailing, 32)
-                    .padding(.top, 120) 
+                    .padding(.top, 120)
                 }
             }
         }
@@ -158,26 +151,9 @@ struct ProfileWithNotesView: View {
 }
 
 #Preview {
-    // моковые данные для превью
-    let notes = [
-        Note(title: "Черновик 1",
-             content: [],
-             color: .yellow,
-             isPublished: false,
-             userName: "petrpetrov"),
-        Note(title: "Опубликованная 1",
-             content: [],
-             color: .green,
-             isPublished: true,
-             userName: "petrpetrov"),
-        Note(title: "Сохранённая 1",
-             content: [],
-             color: .blue,
-             isPublished: true,
-             userName: "Другой")
-    ]
+    let notes = NoteMocks.notes
     
-    return ProfileWithNotesView(
+    ProfileWithNotesView(
         username: "petrpetrov",
         notes: notes,
         showSettings: .constant(false),

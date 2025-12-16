@@ -58,6 +58,28 @@ final class UserStorage: ObservableObject {
         }
     }
     
+    func updateUserName(newName: String) {
+        Task {
+            do {
+                currentUser = try await UserManager.instance.updateUserName(newName: newName)
+            } catch {
+                // TODO same
+                print("Change name error: \(error)")
+            }
+        }
+    }
+    
+    func updateUserEmail(newEmail: String) {
+        Task {
+            do {
+                currentUser = try await UserManager.instance.updateUserEmail(newEmail: newEmail)
+            } catch {
+                // TODO same
+                print("Change email error: \(error)")
+            }
+        }
+    }
+    
     func logout() {
         do {
             try AuthManager.instance.logOut()
