@@ -78,6 +78,8 @@ extension CreateNoteView {
     func addTextSection() {
         withAnimation {
             sections.append(.textSection())
+            let id = sections.last!.id
+            focusedTextSectionID = id
         }
     }
     
@@ -85,7 +87,10 @@ extension CreateNoteView {
     func addImageSection() -> NoteComposerSection {
         let newSection = NoteComposerSection.imageSection()
         withAnimation {
+//             sections.append(.imageSection())
+            
             sections.append(newSection)
+            focusedTextSectionID = sections.last!.id
         }
         return newSection
     }

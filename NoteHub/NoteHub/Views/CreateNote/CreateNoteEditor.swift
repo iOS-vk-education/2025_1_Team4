@@ -20,7 +20,7 @@ extension CreateNoteView {
                         .padding(.vertical, 4)
                         .background((isPublishedFlag ? Color.green.opacity(0.15) : Color.orange.opacity(0.15)))
                         .clipShape(Capsule())
-                }
+                }.padding(20)
             }
             
             ZStack {
@@ -33,38 +33,43 @@ extension CreateNoteView {
                                 .allowsHitTesting(stage == .reading)
                         }
         }
-        .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color("Modal_Background"))
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Готово") {
-                    UIApplication.shared.endEditing()
-                }
-            }
-        }
     }
     
     private var editableContent: some View {
-        ScrollView {
-            VStack(spacing: 14) {
-                TextField("Заголовок", text: $noteTitle, axis: .vertical)
-                    .font(.title3.weight(.semibold))
-                    .padding(.leading, 24)
-                    .padding(.vertical, 16)
-                    .background(Color(red: 0.97, green: 0.98, blue: 1.0))
-                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                    .onChange(of: noteTitle) { _, _ in handleTextChange() }
-                
-                ForEach($sections) { $section in
-                    draggableSectionRow(for: $section)
-                }
-                
-                addSectionButtons
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 14) {
+                    TextField("Заголовок", text: $noteTitle, axis: .vertical)
+                        .font(.title3.weight(.semibold))
+                        .padding(.leading, 24)
+                        .padding(.vertical, 16)
+                        .background(Color(red: 0.97, green: 0.98, blue: 1.0))
+                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                        .onChange(of: noteTitle) { _, _ in handleTextChange() }
+                    
+                    ForEach($sections) { $section in
+                        draggableSectionRow(for: $section)
+                    }
+                    
+                    addSectionButtons
+                }.padding(20)
             }
+            .frame(maxWidth: .infinity, minHeight: 360)
+            .onChange(of: sections) { _, _ in
+                    if let id = focusedTextSectionID {
+                        withAnimation {
+                            proxy.scrollTo(id, anchor: .center)
+                        }
+                    }
+                }
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 16)
+            }
+
         }
-        .frame(maxWidth: .infinity, minHeight: 360)
     }
     
     private var readingContent: some View {
@@ -80,6 +85,7 @@ extension CreateNoteView {
                     previewSection(section)
                 }
             }
+            .padding(20)
         }
         .frame(maxWidth: .infinity, minHeight: 360)
     }
@@ -118,6 +124,7 @@ extension CreateNoteView {
             
             sectionCard(for: section)
         }
+        .id(section.wrappedValue.id)
         .onDrop(
             of: ["com.notehub.note-section"],
             delegate: SectionDropDelegate(
@@ -142,6 +149,7 @@ extension CreateNoteView {
     private func textSectionCard(for section: Binding<NoteComposerSection>) -> some View {
         ZStack(alignment: .topLeading) {
             TextEditor(text: section.text)
+                .focused($focusedTextSectionID, equals: section.wrappedValue.id)
                 .scrollContentBackground(.hidden)
                 .padding()
                 .background(Color(red: 0.97, green: 0.98, blue: 1.0))
