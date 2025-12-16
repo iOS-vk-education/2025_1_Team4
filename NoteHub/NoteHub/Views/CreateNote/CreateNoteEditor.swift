@@ -176,8 +176,11 @@ extension CreateNoteView {
                     .clipShape(RoundedRectangle(cornerRadius: 18))
             } else {
                 Menu {
-                    PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
-                        Label("Добавить фото", systemImage: "photo.on.rectangle")
+                    Button {
+                        photoLibrarySectionID = sectionID
+                        showPhotoLibrary = true
+                    } label: {
+                        Label("Выбрать из галереи", systemImage: "photo.on.rectangle")
                     }
                     
                     Button {
@@ -207,8 +210,11 @@ extension CreateNoteView {
         .overlay(alignment: .bottomTrailing) {
             if section.wrappedValue.imageData != nil {
                 Menu {
-                    PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
-                        Label("Изменить фото", systemImage: "photo.on.rectangle")
+                    Button {
+                        photoLibrarySectionID = sectionID
+                        showPhotoLibrary = true
+                    } label: {
+                        Label("Выбрать из галереи", systemImage: "photo.on.rectangle")
                     }
                     
                     Button {
@@ -273,7 +279,7 @@ extension CreateNoteView {
         .animation(.easeInOut(duration: 0.2), value: stage)
     }
     
-    private func pickerBinding(for sectionID: UUID) -> Binding<PhotosPickerItem?> {
+    func pickerBinding(for sectionID: UUID) -> Binding<PhotosPickerItem?> {
         Binding(
             get: { photoSelections[sectionID] ?? nil },
             set: { newValue in
