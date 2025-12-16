@@ -18,6 +18,15 @@ struct NoteCardView: View {
                     .font(.title2)
                     .foregroundColor(.black)
                 Spacer()
+                if !note.isPublished {
+                    Text("Черновик")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.orange.opacity(0.15))
+                        .clipShape(Capsule())
+                }
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 16)

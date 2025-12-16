@@ -94,6 +94,8 @@ struct ShowNoteView: View {
                                             .frame(maxWidth: .infinity)
                                             .clipped()
                                     }
+                                    .buttonStyle(.plain)
+                                    .frame(maxWidth: .infinity, alignment: .center)
                                 } else {
                                     Rectangle()
                                         .fill(Color.orange.opacity(0.3))
@@ -106,6 +108,7 @@ struct ShowNoteView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
                     .background(Color.white)
                     .padding(.bottom, 16)

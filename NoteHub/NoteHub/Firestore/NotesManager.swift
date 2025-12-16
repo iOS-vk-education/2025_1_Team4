@@ -46,18 +46,21 @@ final class NotesManager {
     }
     
     private func processContent(content: [CreateNoteContentItemRequest]) async throws -> [DBNoteContentItem] {
-        try await withThrowingTaskGroup(of: DBNoteContentItem.self) { group in
-            for item in content {
+        try await withThrowingTaskGroup(of: (Int, DBNoteContentItem).self) { group in
+            for (index, item) in content.enumerated() {
                 group.addTask {
-                    return try await NoteContentItemManager.instance.createNoteContentItem(createNoteContentItemRequest: item)
+                    let dbItem = try await NoteContentItemManager.instance.createNoteContentItem(createNoteContentItemRequest: item)
+                    return (index, dbItem)
                 }
             }
             
-            var result: [DBNoteContentItem] = []
-            for try await dbNoteContentItem in group {
-                result.append(dbNoteContentItem)
+            var results: [(Int, DBNoteContentItem)] = []
+            for try await result in group {
+                results.append(result)
             }
-            return result
+            // Сортируем по индексу, чтобы сохранить порядок
+            results.sort { $0.0 < $1.0 }
+            return results.map { $0.1 }
         }
     }
     
