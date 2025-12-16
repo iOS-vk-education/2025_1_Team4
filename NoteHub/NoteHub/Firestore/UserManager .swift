@@ -26,12 +26,12 @@ final class UserManager {
         return dbUser
     }
     
-    func updateUserName(newName: String) async throws -> DBUser {
+    func updateUserEmail(newEmail: String) async throws -> DBUser {
         guard let user = AuthManager.instance.getAuthenticatedUser() else {
             throw URLError(.userAuthenticationRequired)
         }
         try await Firestore.firestore().collection("users").document(user.uid).updateData([
-            "name": newName
+            "email": newEmail
         ])
         return try await getUser(uid: user.uid)
     }

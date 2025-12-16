@@ -13,7 +13,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if notesStorage.notes.isEmpty {
+                if store.notes.isEmpty {
                     EmptyProfileView(
                         username: username,
                         showSettings: $showSettings

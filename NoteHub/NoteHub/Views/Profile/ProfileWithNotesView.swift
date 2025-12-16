@@ -96,8 +96,7 @@ struct ProfileWithNotesView: View {
                 VStack(spacing: 0) {
                     ProfileHeaderView(
                         username: username,
-                        notesCount: notesCount,
-                        publishedCount: publishedCount,
+                        notes: notes.filter { $0.owner.name == username },
                         showSettings: $showSettings,
                         showsFilter: notesCount > 0,
                         isFilterActive: isFilterActive,
@@ -152,7 +151,6 @@ struct ProfileWithNotesView: View {
 }
 
 #Preview {
-    // моковые данные для превью
     let notes = NoteMocks.notes
     
     ProfileWithNotesView(
