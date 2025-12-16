@@ -1,38 +1,29 @@
 import SwiftUI
 import FirebaseAuth
 
+// Маршруты внутри настроек
 enum SettingsRoute: Hashable {
     case changeEmail
     case changeName
     case changePassword
 }
 
+// Типы алертов на главном экране
 enum SettingsAlertType: Identifiable {
     case logout
     case delete
+    
     var id: Int { hashValue }
 }
 
+// MARK: - Общие вспомогательные вью
+
+/// Текстфилд с ошибкой и кнопкой показать/скрыть пароль
 struct TextFieldWithError: View {
     let title: String
     @Binding var text: String
     let isSecure: Bool
     let errorText: String?
-    let autocapitalization: TextInputAutocapitalization
-    
-    init(
-        title: String,
-        text: Binding<String>,
-        isSecure: Bool = false,
-        errorText: String? = nil,
-        autocapitalization: TextInputAutocapitalization = .sentences
-    ) {
-        self.title = title
-        self._text = text
-        self.isSecure = isSecure
-        self.errorText = errorText
-        self.autocapitalization = autocapitalization
-    }
     
     @State private var isSecureVisible = false
     
@@ -42,10 +33,8 @@ struct TextFieldWithError: View {
                 Group {
                     if isSecure && !isSecureVisible {
                         SecureField(title, text: $text)
-                            .textInputAutocapitalization(autocapitalization)
                     } else {
                         TextField(title, text: $text)
-                            .textInputAutocapitalization(autocapitalization)
                     }
                 }
                 .padding(.horizontal, 12)
@@ -53,11 +42,16 @@ struct TextFieldWithError: View {
                 .background(Color.white)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(errorText == nil ? Color.gray.opacity(0.4) : Color.red, lineWidth: 1)
+                        .stroke(
+                            errorText == nil ? Color.gray.opacity(0.4) : Color.red,
+                            lineWidth: 1
+                        )
                 )
                 
                 if isSecure {
-                    Button { isSecureVisible.toggle() } label: {
+                    Button {
+                        isSecureVisible.toggle()
+                    } label: {
                         Image(systemName: isSecureVisible ? "eye" : "eye.slash")
                             .foregroundColor(.gray)
                             .padding(.trailing, 12)
@@ -74,13 +68,16 @@ struct TextFieldWithError: View {
     }
 }
 
+/// Общий фон и верхняя кнопка «Вернуться» для экранов изменения данных
 struct SettingsFlowContainer<Content: View>: View {
     let onBack: () -> Void
     let content: () -> Content
     
     var body: some View {
         ZStack {
-            Color("Main_Background").ignoresSafeArea()
+            Color("Main_Background")
+                .ignoresSafeArea()
+            
             VStack(spacing: 24) {
                 HStack(spacing: 8) {
                     Button(action: onBack) {
@@ -92,6 +89,7 @@ struct SettingsFlowContainer<Content: View>: View {
                         }
                     }
                     .foregroundColor(.black)
+                    
                     Spacer()
                 }
                 .padding(.top, 4)
@@ -101,6 +99,7 @@ struct SettingsFlowContainer<Content: View>: View {
                     .padding(.top, 8)
                 
                 content()
+                
                 Spacer()
             }
             .padding(.horizontal, 24)
@@ -108,20 +107,20 @@ struct SettingsFlowContainer<Content: View>: View {
     }
 }
 
+// MARK: -  изменения данных
+
 struct ChangeEmailView: View {
     let currentEmail: String
     let onBack: () -> Void
-    
-    @EnvironmentObject private var userStorage: UserStorage
-    
+
     @State private var enteredCurrentEmail = ""
     @State private var newEmail = ""
     @State private var password = ""
-    
+
     @State private var currentEmailError: String?
     @State private var newEmailError: String?
     @State private var passwordError: String?
-    
+
     var body: some View {
         SettingsFlowContainer(onBack: onBack) {
             VStack(spacing: 16) {
@@ -130,18 +129,16 @@ struct ChangeEmailView: View {
                         title: "Текущая почта",
                         text: $enteredCurrentEmail,
                         isSecure: false,
-                        errorText: currentEmailError,
-                        autocapitalization: .never
+                        errorText: currentEmailError
                     )
-                    
+
                     TextFieldWithError(
                         title: "Новая почта",
                         text: $newEmail,
                         isSecure: false,
-                        errorText: newEmailError,
-                        autocapitalization: .never
+                        errorText: newEmailError
                     )
-                    
+
                     TextFieldWithError(
                         title: "Пароль",
                         text: $password,
@@ -152,56 +149,44 @@ struct ChangeEmailView: View {
                 .padding(16)
                 .background(Color.white)
                 .cornerRadius(16)
-                
+
                 Button("Изменить почту", action: handleChangeEmail)
             }
         }
         .navigationBarBackButtonHidden(true)
     }
-    
+
     private func handleChangeEmail() {
         currentEmailError = nil
         newEmailError = nil
         passwordError = nil
-        
+
         var valid = true
-        
+
         if enteredCurrentEmail.lowercased() != currentEmail.lowercased() {
             currentEmailError = "Некорректная почта"
             valid = false
         }
-        
+
         if !newEmail.contains("@") || !newEmail.contains(".") {
             newEmailError = "Некорректная почта"
             valid = false
         }
-        
+
         if password.count < 6 {
             passwordError = "Неправильный пароль"
             valid = false
         }
-        
+
         if valid {
             Task {
                 do {
-                    try await AuthManager.instance.reauthenticate(email: currentEmail, password: password)
-                    
                     try await AuthManager.instance.updateEmail(newEmail: newEmail)
-                
-                    let updatedUser = try await UserManager.instance.updateUserEmail(newEmail: newEmail)
-                    userStorage.currentUser = updatedUser
-                    
                     onBack()
                 } catch {
                     let nsError = error as NSError
                     if AuthErrorCode(rawValue: nsError.code) == .requiresRecentLogin {
                         passwordError = "Войдите заново"
-                    } else if AuthErrorCode(rawValue: nsError.code) == .wrongPassword {
-                        passwordError = "Неправильный пароль"
-                    } else if AuthErrorCode(rawValue: nsError.code) == .invalidCredential {
-                        passwordError = "Неправильный пароль"
-                    } else if AuthErrorCode(rawValue: nsError.code) == .emailAlreadyInUse {
-                        newEmailError = "Эта почта уже используется"
                     } else {
                         newEmailError = error.localizedDescription
                     }
@@ -211,12 +196,9 @@ struct ChangeEmailView: View {
     }
 }
 
-
 struct ChangeNameView: View {
     let currentName: String
     let onBack: () -> Void
-    
-    @EnvironmentObject private var userStorage: UserStorage
     
     @State private var newName = ""
     @State private var password = ""
@@ -228,8 +210,19 @@ struct ChangeNameView: View {
         SettingsFlowContainer(onBack: onBack) {
             VStack(spacing: 16) {
                 VStack(spacing: 12) {
-                    TextFieldWithError(title: "Новое имя", text: $newName, isSecure: false, errorText: nameError)
-                    TextFieldWithError(title: "Пароль", text: $password, isSecure: true, errorText: passwordError)
+                    TextFieldWithError(
+                        title: "Новое имя",
+                        text: $newName,
+                        isSecure: false,
+                        errorText: nameError
+                    )
+                    
+                    TextFieldWithError(
+                        title: "Пароль",
+                        text: $password,
+                        isSecure: true,
+                        errorText: passwordError
+                    )
                 }
                 .padding(16)
                 .background(Color.white)
@@ -244,277 +237,15 @@ struct ChangeNameView: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                 }
-            }
-        }
-        .navigationBarBackButtonHidden(true)
-    }
-    
-    private func handleChangeName() {
-        nameError = nil
-        passwordError = nil
-        
-        var valid = true
-        
-        if newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            nameError = "Имя не может быть пустым"
-            valid = false
-        }
-        
-        if password.count < 6 {
-            passwordError = "Неправильный пароль"
-            valid = false
-        }
-        
-        if valid {
-            Task {
-                do {
-                    guard let email = userStorage.currentUser?.email else {
-                        passwordError = "Ошибка получения данных пользователя"
-                        return
-                    }
-                    
-                    _ = try await AuthManager.instance.logIn(email: email, password: password)
-                    
-                    let updatedUser = try await UserManager.instance.updateUserName(newName: newName.trimmingCharacters(in: .whitespacesAndNewlines))
-                    userStorage.currentUser = updatedUser
-                    
-                    onBack()
-                } catch {
-                    let nsError = error as NSError
-                    if AuthErrorCode(rawValue: nsError.code) == .wrongPassword {
-                        passwordError = "Неправильный пароль"
-                    } else if AuthErrorCode(rawValue: nsError.code) == .userNotFound {
-                        passwordError = "Пользователь не найден"
-                    } else {
-                        passwordError = error.localizedDescription
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct ChangePasswordView: View {
-    let onBack: () -> Void
-    
-    @State private var currentPassword = ""
-    @State private var newPassword = ""
-    @State private var repeatPassword = ""
-    
-    @State private var currentPasswordError: String?
-    @State private var newPasswordError: String?
-    @State private var repeatPasswordError: String?
-    
-    var body: some View {
-        SettingsFlowContainer(onBack: onBack) {
-            VStack(spacing: 16) {
-                VStack(spacing: 12) {
-                    TextFieldWithError(
-                        title: "Текущий пароль",
-                        text: $currentPassword,
-                        isSecure: true,
-                        errorText: currentPasswordError
-                    )
-                    
-                    TextFieldWithError(
-                        title: "Новый пароль",
-                        text: $newPassword,
-                        isSecure: true,
-                        errorText: newPasswordError
-                    )
-                    
-                    TextFieldWithError(
-                        title: "Повторите пароль",
-                        text: $repeatPassword,
-                        isSecure: true,
-                        errorText: repeatPasswordError
-                    )
-                }
-                .padding(16)
-                .background(Color.white)
-                .cornerRadius(16)
                 
-                Button("Изменить пароль", action: handleChangePassword)
-            }
-        }
-        .navigationBarBackButtonHidden(true)
-    }
-    
-    private func handleChangePassword() {
-        currentPasswordError = nil
-        newPasswordError = nil
-        repeatPasswordError = nil
-        
-        var valid = true
-        
-        if currentPassword.count < 6 {
-            currentPasswordError = "Неправильный пароль"
-            valid = false
-        }
-        
-        if newPassword.count < 6 {
-            newPasswordError = "Пароль слишком короткий"
-            valid = false
-        }
-        
-        if newPassword != repeatPassword {
-            repeatPasswordError = "Пароли не совпадают"
-            valid = false
-        }
-        
-        if valid {
-            Task {
-                do {
-                    try await AuthManager.instance.updatePassword(newPassword: newPassword)
-                    onBack()
-                } catch {
-                    let nsError = error as NSError
-                    if AuthErrorCode(rawValue: nsError.code) == .requiresRecentLogin {
-                        currentPasswordError = "Войдите заново"
-                    } else {
-                        newPasswordError = error.localizedDescription
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-struct SettingsView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var userStorage: UserStorage
-    
-    @State private var path = NavigationPath()
-    @State private var activeAlert: SettingsAlertType?
-    
-    private var username: String {
-        userStorage.currentUser?.name ?? "Гость"
-    }
-    
-    private var email: String {
-        userStorage.currentUser?.email ?? "—"
-    }
-    
-    var body: some View {
-        NavigationStack(path: $path) {
-            mainScreen
-                .navigationDestination(for: SettingsRoute.self) { route in
-                    switch route {
-                    case .changeEmail:
-                        ChangeEmailView(currentEmail: email, onBack: { path.removeLast() })
-                            .environmentObject(userStorage)
-                    case .changeName:
-                        ChangeNameView(currentName: username, onBack: { path.removeLast() })
-                            .environmentObject(userStorage)
-                    case .changePassword:
-                        ChangePasswordView(onBack: { path.removeLast() })
-                    }
-                }
-        }
-        .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .alert(item: $activeAlert) { alertType in
-            switch alertType {
-            case .logout:
-                return Alert(
-                    title: Text("Выход из аккаунта"),
-                    message: Text("Вы уверены, что хотите выйти из аккаунта \(email)?"),
-                    primaryButton: .cancel(Text("Отмена")),
-                    secondaryButton: .destructive(Text("Выйти")) {
-                        userStorage.logout()
-                        dismiss()
-                    }
-                )
-            case .delete:
-                return Alert(
-                    title: Text("Удаление аккаунта"),
-                    message: Text("Все созданные заметки будут безвозвратно удалены.\nВы уверены, что хотите удалить аккаунт \(email)?"),
-                    primaryButton: .cancel(Text("Отмена")),
-                    secondaryButton: .destructive(Text("Удалить")) {
-                        userStorage.delete()
-                        dismiss()
-                    }
-                )
-            }
-        }
-    }
-    
-    private var mainScreen: some View {
-        ZStack {
-            Color("Main_Background").ignoresSafeArea()
-            
-            VStack(alignment: .leading, spacing: 24) {
-                HStack(spacing: 8) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 17, weight: .semibold))
-                            Text("Вернуться")
-                                .font(.system(size: 17))
-                        }
-                    }
-                    .foregroundColor(.black)
-                    
-                    Spacer()
-                }
-                .padding(.top, 4)
-                
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(username)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.black)
-                    
-                    Text("Почта: \(email)")
+                Button {
+                    // TODO: забыли пароль
+                } label: {
+                    Text("Забыли пароль?")
                         .font(.system(size: 15))
-                        .foregroundColor(.gray)
-                    
-                    Text("Имя: \(username)")
-                        .font(.system(size: 15))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.blue)
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white)
-                .cornerRadius(16)
-                
-                VStack(spacing: 0) {
-                    settingsRow(title: "Изменить почту") { path.append(SettingsRoute.changeEmail) }
-                    Divider()
-                    settingsRow(title: "Изменить имя") { path.append(SettingsRoute.changeName) }
-                    Divider()
-                    settingsRow(title: "Изменить пароль") { path.append(SettingsRoute.changePassword) }
-                    Divider()
-                    settingsRow(title: "Выйти", textColor: .red) { activeAlert = .logout }
-                    Divider()
-                    settingsRow(title: "Удалить аккаунт", textColor: .red) { activeAlert = .delete }
-                }
-                .background(Color.white)
-                .cornerRadius(16)
-                .frame(maxWidth: .infinity)
-                
-                Spacer()
             }
-            .padding(.horizontal, 24)
-        }
-    }
-    
-    private func settingsRow(
-        title: String,
-        textColor: Color = .blue,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 17))
-                    .foregroundColor(textColor)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
         .navigationBarBackButtonHidden(true)
     }
@@ -544,15 +275,15 @@ struct SettingsView: View {
 
 struct ChangePasswordView: View {
     let onBack: () -> Void
-    
+
     @State private var currentPassword = ""
     @State private var newPassword = ""
     @State private var repeatPassword = ""
-    
+
     @State private var currentPasswordError: String?
     @State private var newPasswordError: String?
     @State private var repeatPasswordError: String?
-    
+
     var body: some View {
         SettingsFlowContainer(onBack: onBack) {
             VStack(spacing: 16) {
@@ -563,14 +294,14 @@ struct ChangePasswordView: View {
                         isSecure: true,
                         errorText: currentPasswordError
                     )
-                    
+
                     TextFieldWithError(
                         title: "Новый пароль",
                         text: $newPassword,
                         isSecure: true,
                         errorText: newPasswordError
                     )
-                    
+
                     TextFieldWithError(
                         title: "Повторите пароль",
                         text: $repeatPassword,
@@ -581,58 +312,52 @@ struct ChangePasswordView: View {
                 .padding(16)
                 .background(Color.white)
                 .cornerRadius(16)
-                
-                Button(action: handleChangePassword) {
-                    Text("Изменить пароль")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
-                
-                Button {
-                    // TODO: забыли пароль
-                } label: {
-                    Text("Забыли пароль?")
-                        .font(.system(size: 15))
-                        .foregroundColor(.blue)
-                }
+
+                Button("Изменить пароль", action: handleChangePassword)
             }
         }
         .navigationBarBackButtonHidden(true)
     }
-    
+
     private func handleChangePassword() {
         currentPasswordError = nil
         newPasswordError = nil
         repeatPasswordError = nil
-        
+
         var valid = true
-        
+
         if currentPassword.count < 6 {
             currentPasswordError = "Неправильный пароль"
             valid = false
         }
-        
+
         if newPassword.count < 6 {
             newPasswordError = "Пароль слишком короткий"
             valid = false
         }
-        
+
         if newPassword != repeatPassword {
             repeatPasswordError = "Пароли не совпадают"
             valid = false
         }
-        
+
         if valid {
-            // TODO: запрос на изменение пароля
-            onBack()
+            Task {
+                do {
+                    try await AuthManager.instance.updatePassword(newPassword: newPassword)
+                    onBack()
+                } catch {
+                    let nsError = error as NSError
+                    if AuthErrorCode(rawValue: nsError.code) == .requiresRecentLogin {
+                        currentPasswordError = "Войдите заново"
+                    } else {
+                        newPasswordError = error.localizedDescription
+                    }
+                }
+            }
         }
     }
 }
-
 // MARK: - Главный экран настроек
 
 struct SettingsView: View {

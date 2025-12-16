@@ -22,9 +22,7 @@ struct ProfileView: View {
                     ProfileWithNotesView(
                         username: username,
                         notes: notesStorage.notes,
-                        showSettings: $showSettings,
-                        notesCount: notesStorage.notes.count,
-                        publishedCount: notesStorage.publishedCount
+                        showSettings: $showSettings
                     )
                 }
             }

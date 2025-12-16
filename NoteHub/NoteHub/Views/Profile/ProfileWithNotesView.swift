@@ -63,8 +63,6 @@ struct ProfileWithNotesView: View {
     let username: String
     let notes: [DBNote]
     @Binding var showSettings: Bool
-    let notesCount: Int
-    let publishedCount: Int
     
     @State private var selectedFilter: ProfileNotesFilter = .all
     @State private var showFilterMenu = false
@@ -96,13 +94,13 @@ struct ProfileWithNotesView: View {
                 VStack(spacing: 0) {
                     ProfileHeaderView(
                         username: username,
-                        notes: notes.filter { $0.owner.name == username },
+                        notes: notes,
                         showSettings: $showSettings,
-                        showsFilter: notesCount > 0,
+                        showsFilter: !notes.isEmpty,
                         isFilterActive: isFilterActive,
                         filterTitle: isFilterActive ? selectedFilter.chipTitle : nil,
                         onFilterTap: {
-                            if notesCount > 0 {
+                            if !notes.isEmpty {
                                 withAnimation {
                                     showFilterMenu.toggle()
                                 }
@@ -151,13 +149,12 @@ struct ProfileWithNotesView: View {
 }
 
 #Preview {
+    // моковые данные для превью
     let notes = NoteMocks.notes
     
     ProfileWithNotesView(
         username: "petrpetrov",
         notes: notes,
-        showSettings: .constant(false),
-        notesCount: notes.count,
-        publishedCount: 1
+        showSettings: .constant(false)
     )
 }

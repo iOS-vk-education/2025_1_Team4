@@ -5,13 +5,17 @@ struct ProfileHeaderView: View {
     let notes: [DBNote]
     @Binding var showSettings: Bool
 
-    private var notesCount: Int { notes.count }
-    private var publishedCount: Int { notes.filter { $0.isPublished }.count }
+    private var notesCount: Int {
+        notes.filter { $0.owner.name == username }.count
+    }
+
+    private var publishedCount: Int {
+        notes.filter { $0.isPublished && $0.owner.name == username }.count
+    }
 
     let showsFilter: Bool
     let isFilterActive: Bool
     let filterTitle: String?
-
     var onFilterTap: (() -> Void)?
     var onClearFilterTap: (() -> Void)?
 
@@ -37,7 +41,7 @@ struct ProfileHeaderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-
+            //имя + настройки
             HStack {
                 Text(username)
                     .font(.system(size: 22, weight: .semibold))
@@ -56,6 +60,7 @@ struct ProfileHeaderView: View {
                 }
             }
 
+            //Статистика и фильтр
             HStack(spacing: 10) {
                 statChip(title: "\(notesCount)", subtitle: "заметок")
                 statChip(title: "\(publishedCount)", subtitle: "публикаций")
@@ -71,6 +76,7 @@ struct ProfileHeaderView: View {
                 }
             }
 
+            //Чип выбранного фильтра
             if let filterTitle = filterTitle, !filterTitle.isEmpty {
                 HStack {
                     Spacer()
@@ -99,6 +105,7 @@ struct ProfileHeaderView: View {
         .padding(.horizontal)
     }
 
+    //Чип статистики
     private func statChip(title: String, subtitle: String) -> some View {
         HStack(spacing: 4) {
             Text(title)
@@ -115,6 +122,7 @@ struct ProfileHeaderView: View {
     }
 }
 
+//Кнопка фильтра
 private struct FilterIconButton: View {
     let isActive: Bool
     let action: () -> Void
@@ -148,14 +156,16 @@ private struct FilterButtonStyle: ButtonStyle {
 
     private func backgroundColor(isPressed: Bool) -> Color {
         if isActive {
-            return isPressed
-                ? Color.black.opacity(0.24)
-                : Color.black.opacity(0.16)
+            return configurationIsPressed(isPressed)
         } else {
-            return isPressed
-                ? Color.black.opacity(0.12)
-                : Color.clear
+            return isPressed ? Color.black.opacity(0.12) : Color.clear
         }
+    }
+
+    private func configurationIsPressed(_ isPressed: Bool) -> Color {
+        isPressed
+            ? Color.black.opacity(0.24)
+            : Color.black.opacity(0.16)
     }
 }
 
