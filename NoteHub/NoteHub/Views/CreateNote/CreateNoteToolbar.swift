@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 extension CreateNoteView {
     var topToolbar: some View {
@@ -20,13 +21,13 @@ extension CreateNoteView {
             
             Menu {
                 Button("Опубликовать") { persistNote(isPublished: true) }
-                    .disabled(!hasContent)
+                    .disabled(!hasContent || isSaving)
                 Button("Сохранить черновик") { persistNote(isPublished: false) }
-                    .disabled(!hasContent)
+                    .disabled(!hasContent || isSaving)
             } label: {
                 toolbarIcon(systemName: "checkmark")
             }
-            .disabled(stage == .creating || stage == .infoHint)
+            .disabled(stage == .creating || stage == .infoHint || isSaving)
             
             Spacer()
 
@@ -80,9 +81,54 @@ extension CreateNoteView {
         }
     }
     
-    func addImageSection() {
+    @discardableResult
+    func addImageSection() -> NoteComposerSection {
+        let newSection = NoteComposerSection.imageSection()
         withAnimation {
-            sections.append(.imageSection())
+            sections.append(newSection)
+        }
+        return newSection
+    }
+    
+    func checkCameraPermissionAndOpen(sectionID: UUID) {
+        // Проверяем доступность камеры
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            return
+        }
+        
+        // Сохраняем sectionID перед проверкой разрешения
+        cameraSectionID = sectionID
+        
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .authorized:
+            // Разрешение есть, открываем камеру с небольшой задержкой
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.showCamera = true
+            }
+        case .notDetermined:
+            // Запрашиваем разрешение
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        // Небольшая задержка перед открытием камеры
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self.showCamera = true
+                        }
+                    } else {
+                        self.cameraSectionID = nil
+                        self.showCameraPermissionAlert = true
+                    }
+                }
+            }
+        case .denied, .restricted:
+            // Разрешение отклонено, показываем alert
+            cameraSectionID = nil
+            showCameraPermissionAlert = true
+        @unknown default:
+            cameraSectionID = nil
+            showCameraPermissionAlert = true
         }
     }
     
@@ -97,9 +143,12 @@ extension CreateNoteView {
     }
     
     func persistNote(isPublished: Bool) {
-        guard hasContent else { return }
+        guard hasContent && !isSaving else { return }
         let createContentItemRequests = sections.compactMap { $0.makeCreateContentItemRequest() }
         guard !createContentItemRequests.isEmpty else { return }
+        
+        isSaving = true
+        savingMessage = isPublished ? "Публикуется..." : "Сохраняется..."
         
         let sanitizedTitle = noteTitle.trimmed.isEmpty ? "Без названия" : noteTitle.trimmed
         let palette: [Color] = [
@@ -120,14 +169,46 @@ extension CreateNoteView {
         Task {
             do {
                 let dbNote = try await NotesManager.instance.createNote(createNoteRequest: createNoteRequest)
+                await MainActor.run {
+                    isPublishedFlag = isPublished
+                    stage = .reading
+                    isSaving = false
+                    savingMessage = nil
+                }
                 print("Create new note with nid: \(dbNote.nid)")
             } catch {
+                await MainActor.run {
+                    isSaving = false
+                    savingMessage = "Ошибка сохранения"
+                    // Убираем сообщение об ошибке через 2 секунды
+                    Task {
+                        try? await Task.sleep(nanoseconds: 2_000_000_000)
+                        await MainActor.run {
+                            savingMessage = nil
+                        }
+                    }
+                }
                 print("Create new note error: \(error)")
             }
         }
-        
-        isPublishedFlag = isPublished
-        stage = .reading
+    }
+    
+    @ViewBuilder
+    func savingIndicator(message: String) -> some View {
+        HStack(spacing: 12) {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .scaleEffect(0.8)
+            Text(message)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
+        .background(Color.black.opacity(0.8))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.bottom, 50)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }
 

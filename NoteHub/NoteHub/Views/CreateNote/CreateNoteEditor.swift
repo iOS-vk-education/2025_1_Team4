@@ -1,6 +1,8 @@
 import SwiftUI
 import PhotosUI
 import MarkdownUI
+import UIKit
+import AVFoundation
 
 extension CreateNoteView {
     var editor: some View {
@@ -161,20 +163,33 @@ extension CreateNoteView {
     @ViewBuilder
     private func imageSectionCard(for section: Binding<NoteComposerSection>) -> some View {
         let sectionID = section.wrappedValue.id
-        PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(Color(red: 0.97, green: 0.98, blue: 1.0))
-                    .frame(minHeight: 200)
-                
-                if let data = section.wrappedValue.imageData, let image = UIImage(data: data) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 200)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                } else {
+        ZStack(alignment: .center) {
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color(red: 0.97, green: 0.98, blue: 1.0))
+                .frame(minHeight: 200)
+            
+            if let data = section.wrappedValue.imageData, let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+            } else {
+                Menu {
+                    PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
+                        Label("Добавить фото", systemImage: "photo.on.rectangle")
+                    }
+                    
+                    Button {
+                        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+                            return
+                        }
+                        checkCameraPermissionAndOpen(sectionID: sectionID)
+                    } label: {
+                        Label("Снять фото", systemImage: "camera")
+                    }
+                    .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+                } label: {
                     VStack(spacing: 8) {
                         Image(systemName: "photo.on.rectangle.angled")
                             .font(.system(size: 36, weight: .medium))
@@ -186,9 +201,34 @@ extension CreateNoteView {
                 }
             }
         }
-        .buttonStyle(.plain)
         .overlay(alignment: .topTrailing) {
             removeButton(for: sectionID)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if section.wrappedValue.imageData != nil {
+                Menu {
+                    PhotosPicker(selection: pickerBinding(for: sectionID), matching: .images) {
+                        Label("Изменить фото", systemImage: "photo.on.rectangle")
+                    }
+                    
+                    Button {
+                        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+                            return
+                        }
+                        checkCameraPermissionAndOpen(sectionID: sectionID)
+                    } label: {
+                        Label("Снять фото", systemImage: "camera")
+                    }
+                    .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+                } label: {
+                    Image(systemName: "ellipsis.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                        .background(Color.black.opacity(0.6))
+                        .clipShape(Circle())
+                        .padding(8)
+                }
+            }
         }
     }
     
@@ -212,14 +252,8 @@ extension CreateNoteView {
                 .padding(.top, 8)
             
             HStack(spacing: 0) {
-                Menu {
-                    Button("Добавить фото") {
-                        addImageSection()
-                    }
-                                
-                    Button("Снять фото") {
-                        addImageSection()
-                    }
+                Button {
+                    addImageSection()
                 } label: {
                     Image(systemName: "photo.on.rectangle")
                         .font(.system(size: 18, weight: .semibold))
@@ -300,9 +334,8 @@ extension CreateNoteView {
             if let data = section.imageData, let image = UIImage(data: data) {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 200)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .clipShape(RoundedRectangle(cornerRadius: 18))
             }
         }
