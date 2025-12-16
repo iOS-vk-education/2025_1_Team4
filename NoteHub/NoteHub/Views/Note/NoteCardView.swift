@@ -9,7 +9,7 @@ import SwiftUI
 import MarkdownUI
 
 struct NoteCardView: View {
-    let note: Note
+    let note: DBNote
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -18,6 +18,15 @@ struct NoteCardView: View {
                     .font(.title2)
                     .foregroundColor(.black)
                 Spacer()
+                if !note.isPublished {
+                    Text("Черновик")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.orange.opacity(0.15))
+                        .clipShape(Capsule())
+                }
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 16)
@@ -44,12 +53,12 @@ struct NoteCardView: View {
             .frame(maxHeight: 140, alignment: .top)
             .clipped()
             
-            if !note.userName.isEmpty {
+            if !note.owner.name.isEmpty {
                 HStack {
                     Image(systemName: "person")
                         .foregroundColor(.gray)
                         .font(.footnote)
-                    Text(note.userName)
+                    Text(note.owner.name)
                         .font(.footnote)
                         .foregroundColor(.gray)
                 }

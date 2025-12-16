@@ -21,7 +21,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct NoteHubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var userStorage = UserStorage()
-    @StateObject private var notesStore = NotesStore()
+    @StateObject private var notesStorage = NotesStorage()
     
     var body: some Scene {
         WindowGroup {
@@ -31,18 +31,13 @@ struct NoteHubApp: App {
                 } else {
                     MainTabView()
                 }
-//                if userStorage.isLoggedIn {
-//                    MainTabView()
-//                } else {
-//                    WelcomeView()
-//                }
             }
             .onAppear {
                 userStorage.loadAuthData()
                 userStorage.loadCurrentUser()
             }
             .environmentObject(userStorage)
-            .environmentObject(notesStore)
+            .environmentObject(notesStorage)
         }
     }
 }

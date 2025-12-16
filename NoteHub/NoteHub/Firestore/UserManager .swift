@@ -21,12 +21,8 @@ final class UserManager {
     
     func getUser(uid: String) async throws -> DBUser {
         let snapshot = try await Firestore.firestore().collection("users").document(uid).getDocument()
-        guard let dict = snapshot.data() else {
-            throw URLError(.badServerResponse)
-        }
-        guard let dbUser = DBUser(dict: dict) else {
-            throw URLError(.badServerResponse)
-        }
+        guard let dict = snapshot.data() else { throw URLError(.badServerResponse) }
+        guard let dbUser = DBUser(dict: dict) else { throw URLError(.badServerResponse) }
         return dbUser
     }
     

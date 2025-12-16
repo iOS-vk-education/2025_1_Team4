@@ -14,6 +14,7 @@ struct EmptyProfileView: View {
                     username: username,
                     notes: [],
                     showSettings: $showSettings
+                    // showsFilter = false - иконки фильтра нет
                 )
                 
                 Spacer()
