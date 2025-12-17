@@ -19,6 +19,7 @@ struct CreateNoteView: View {
     @Environment(\.dismiss) var dismiss
     
     @EnvironmentObject var userStorage: UserStorage
+    @EnvironmentObject var notesStorage: NotesStorage
     
     @State var stage: Stage = .creating
     @State var noteTitle: String = ""
@@ -37,11 +38,15 @@ struct CreateNoteView: View {
     @State var showPhotoLibrary: Bool = false
     @State var photoLibraryImage: UIImage? = nil
     @State var photoLibrarySectionID: UUID? = nil
+    @State var noteID: String? = nil
+    @State var showDeleteAlert: Bool = false
+    @State var showUnpublishAlert: Bool = false
     
     init() { }
 
      init(note: DBNote) {
         _noteTitle = State(initialValue: note.title)
+        _noteID = State(initialValue: note.nid)
 
         _sections = State(initialValue: note.content.map { item in
             switch item {
