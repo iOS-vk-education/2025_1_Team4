@@ -114,4 +114,14 @@ final class NotesManager {
             return results
         }
     }
+    
+    func deleteNote(nid: String) async throws {
+        try await Firestore.firestore().collection("notes").document(nid).delete()
+    }
+    
+    func unpublishNote(nid: String) async throws {
+        try await Firestore.firestore().collection("notes").document(nid).updateData([
+            "isPublished": false
+        ])
+    }
 }

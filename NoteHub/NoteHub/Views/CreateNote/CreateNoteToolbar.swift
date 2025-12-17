@@ -38,12 +38,16 @@ extension CreateNoteView {
                     }
                 }
                 
-                Button("Снять с публикации") {
-                    // TODO:
+                if isPublishedFlag && noteID != nil {
+                    Button("Снять с публикации", role: .destructive) {
+                        showUnpublishAlert = true
+                    }
                 }
                 
-                Button("Удалить") {
-                   // TODO:
+                if noteID != nil {
+                    Button("Удалить", role: .destructive) {
+                        showDeleteAlert = true
+                    }
                 }
             } label: {
                 toolbarIcon(systemName: "ellipsis")
@@ -51,6 +55,22 @@ extension CreateNoteView {
             .disabled(stage == .reading)
             .opacity(stage == .reading ? 0 : 1)
             .animation(.easeInOut(duration: 0.2), value: stage)
+            .alert("Удалить заметку", isPresented: $showDeleteAlert) {
+                Button("Отмена", role: .cancel) { }
+                Button("Удалить", role: .destructive) {
+                    deleteNote()
+                }
+            } message: {
+                Text("Вы уверены, что хотите удалить эту заметку? Это действие нельзя отменить.")
+            }
+            .alert("Снять с публикации", isPresented: $showUnpublishAlert) {
+                Button("Отмена", role: .cancel) { }
+                Button("Снять", role: .destructive) {
+                    unpublishNote()
+                }
+            } message: {
+                Text("Заметка будет снята с публикации и станет черновиком.")
+            }
             .popover(isPresented: $showHint, attachmentAnchor: .rect(.bounds), arrowEdge: .top) {
                 hintPopover
                     .frame(width: 260)
@@ -194,6 +214,68 @@ extension CreateNoteView {
                     }
                 }
                 print("Create new note error: \(error)")
+            }
+        }
+    }
+    
+    func deleteNote() {
+        guard let nid = noteID else { return }
+        
+        isSaving = true
+        savingMessage = "Удаляется..."
+        
+        Task {
+            do {
+                try await NotesManager.instance.deleteNote(nid: nid)
+                await MainActor.run {
+                    notesStorage.loadNotes()
+                    isSaving = false
+                    savingMessage = nil
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    savingMessage = "Ошибка удаления"
+                    Task {
+                        try? await Task.sleep(nanoseconds: 2_000_000_000)
+                        await MainActor.run {
+                            savingMessage = nil
+                        }
+                    }
+                }
+                print("Delete note error: \(error)")
+            }
+        }
+    }
+    
+    func unpublishNote() {
+        guard let nid = noteID else { return }
+        
+        isSaving = true
+        savingMessage = "Снимается с публикации..."
+        
+        Task {
+            do {
+                try await NotesManager.instance.unpublishNote(nid: nid)
+                await MainActor.run {
+                    isPublishedFlag = false
+                    notesStorage.loadNotes()
+                    isSaving = false
+                    savingMessage = nil
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    savingMessage = "Ошибка"
+                    Task {
+                        try? await Task.sleep(nanoseconds: 2_000_000_000)
+                        await MainActor.run {
+                            savingMessage = nil
+                        }
+                    }
+                }
+                print("Unpublish note error: \(error)")
             }
         }
     }
