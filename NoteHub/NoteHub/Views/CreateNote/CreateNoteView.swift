@@ -17,6 +17,11 @@ struct CreateNoteView: View {
         case infoHint
     }
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.selectedTab) var selectedTab
+    @Environment(\.previousTab) var previousTab
+    @Environment(\.goToProfile) var goToProfile
+    @Environment(\.profileNavigationPath) var profileNavigationPath
     
     @EnvironmentObject var userStorage: UserStorage
     @EnvironmentObject var notesStorage: NotesStorage
@@ -29,6 +34,7 @@ struct CreateNoteView: View {
     @State var showHint: Bool = false
     @State var photoSelections: [UUID: PhotosPickerItem?] = [:]
     @FocusState var focusedTextSectionID: UUID?
+    @FocusState var isTitleFocused: Bool
     @State var isSaving: Bool = false
     @State var savingMessage: String? = nil
     @State var showCamera: Bool = false
@@ -41,21 +47,28 @@ struct CreateNoteView: View {
     @State var noteID: String? = nil
     @State var showDeleteAlert: Bool = false
     @State var showUnpublishAlert: Bool = false
+    @State var noteForEditing: DBNote? = nil // Сохраняем заметку для загрузки изображений
     
     init() { }
 
      init(note: DBNote) {
         _noteTitle = State(initialValue: note.title)
         _noteID = State(initialValue: note.nid)
+        _noteForEditing = State(initialValue: note)
 
-        _sections = State(initialValue: note.content.map { item in
+        // Загружаем секции, для изображений загружаем данные асинхронно
+        var initialSections: [NoteComposerSection] = []
+        for item in note.content {
             switch item {
             case .text(_, let value):
-                return NoteComposerSection(kind: .text, text: value)
+                initialSections.append(NoteComposerSection(kind: .text, text: value))
             case .image(_, let dbImage):
-                return NoteComposerSection(kind: .image, imageData: dbImage.data)
+                // Если данные пустые (lazy loading), создаем секцию без данных
+                // Данные будут загружены позже через task
+                initialSections.append(NoteComposerSection(kind: .image, imageData: dbImage.data.isEmpty ? nil : dbImage.data))
             }
-        })
+        }
+        _sections = State(initialValue: initialSections)
         
          _isPublishedFlag = State(initialValue: note.isPublished)
 
@@ -63,14 +76,23 @@ struct CreateNoteView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color("Main_Background")
-                .ignoresSafeArea()
-            
-            VStack(spacing: 16) {
-                topToolbar
-                editor
+        NavigationStack {
+            ZStack {
+                Color("Main_Background")
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        // Закрываем клавиатуру при тапе вне полей ввода
+                        isTitleFocused = false
+                        focusedTextSectionID = nil
+                    }
+                
+                VStack(spacing: 16) {
+                    topToolbar
+                    editor
+                }
             }
+            .keyboardDoneButton()
+            .navigationBarHidden(true)
         }
         .overlay(
             Color.black.opacity(showHint ? 0.2 : 0)
@@ -173,7 +195,34 @@ struct CreateNoteView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: stage)
         .navigationBarBackButtonHidden(true)
-                .navigationBarHidden(true)
+        .navigationBarHidden(true)
+        .task {
+            // Загружаем данные изображений при редактировании заметки
+            if let note = noteForEditing {
+                await loadImagesForEditing(note: note)
+            }
+        }
+    }
+    
+    private func loadImagesForEditing(note: DBNote) async {
+        // Находим все секции с изображениями, у которых нет данных
+        for (index, item) in note.content.enumerated() {
+            if case .image(_, let dbImage) = item {
+                if dbImage.data.isEmpty && !dbImage.url.isEmpty {
+                    // Загружаем данные изображения
+                    do {
+                        let imageData = try await NoteContentItemManager.instance.loadImageData(urlString: dbImage.url)
+                        await MainActor.run {
+                            if index < sections.count && sections[index].kind == .image {
+                                sections[index].imageData = imageData
+                            }
+                        }
+                    } catch {
+                        print("Failed to load image data for editing: \(error)")
+                    }
+                }
+            }
+        }
     }
 }
 

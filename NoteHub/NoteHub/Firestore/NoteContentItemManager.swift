@@ -41,8 +41,15 @@ final class NoteContentItemManager {
         guard let dict = snapshot.data() else { throw URLError(.badServerResponse) }
         guard let url = dict["url"] as? String else { throw URLError(.badServerResponse) }
         
-        let image = try await ImageManager.instance.getImage(urlString: url)
+        // Для быстрой загрузки списка заметок возвращаем только URL, данные загружаются по требованию
+        let image = ImageManager.instance.getImageURLOnly(urlString: url)
         return DBNoteContentItem.image(ncid: ncid, image: image)
+    }
+    
+    // Загрузить данные изображения по требованию (используя URL из DBImage)
+    func loadImageData(urlString: String) async throws -> Data {
+        let image = try await ImageManager.instance.getImage(urlString: urlString)
+        return image.data
     }
     
     func getNoteContentItemText(ncid: String) async throws -> DBNoteContentItem {

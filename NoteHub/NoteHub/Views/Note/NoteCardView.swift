@@ -10,40 +10,62 @@ import MarkdownUI
 
 struct NoteCardView: View {
     let note: DBNote
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var textColor: Color {
+        Color.adaptiveText(colorScheme: colorScheme)
+    }
+    
+    private var backgroundColor: Color {
+        Color.adaptiveBackground(colorScheme: colorScheme)
+    }
+    
+    private var gradientColor: Color {
+        Color.adaptiveGradient(colorScheme: colorScheme)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(note.title)
                     .font(.title2)
-                    .foregroundColor(.black)
+                    .fontWeight(.semibold)
+                    .foregroundColor(colorScheme == .dark ? .black : textColor)
                 Spacer()
                 if !note.isPublished {
                     Text("Черновик")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundColor(.orange)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.orange.opacity(0.15))
+                        .font(.caption.weight(.bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            colorScheme == .dark 
+                                ? Color.orange 
+                                : Color.orange.opacity(0.9)
+                        )
                         .clipShape(Capsule())
+                        .shadow(color: Color.orange.opacity(0.3), radius: 2, x: 0, y: 1)
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 10)
             .padding(.horizontal, 16)
             .background(note.color)
             .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
             
             ZStack(alignment: .bottom) {
-                Markdown(sanitizeMarkdown(note.preview))
-                    .markdownTheme(.gitHub)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 8)
-                    .padding(.bottom, 8)
+                VStack(alignment: .leading, spacing: 0) {
+                    Markdown(sanitizeMarkdown(note.preview))
+                        .markdownTheme(.docC)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.clear)
+                }
+                .padding(.horizontal, 8)
+                .padding(.bottom, 8)
                 
                 LinearGradient(
                     colors: [
-                        Color.white.opacity(0),
-                        Color.white.opacity(0.9)
+                        gradientColor.opacity(0),
+                        gradientColor.opacity(0.9)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -67,7 +89,7 @@ struct NoteCardView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .background(Color.white)
+        .background(backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
