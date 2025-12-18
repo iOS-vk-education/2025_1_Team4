@@ -42,11 +42,17 @@ extension CreateNoteView {
             ScrollView {
                 VStack(spacing: 14) {
                     TextField("Заголовок", text: $noteTitle, axis: .vertical)
+                        .focused($isTitleFocused)
                         .font(.title3.weight(.semibold))
                         .padding(.leading, 24)
                         .padding(.vertical, 16)
-                        .background(Color(red: 0.97, green: 0.98, blue: 1.0))
+                        .background(
+                            colorScheme == .dark 
+                                ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0)
+                                : Color(red: 0.97, green: 0.98, blue: 1.0)
+                        )
                         .clipShape(RoundedRectangle(cornerRadius: 18))
+                        .submitLabel(.return)
                         .onChange(of: noteTitle) { _, _ in handleTextChange() }
                     
                     ForEach($sections) { $section in
@@ -78,6 +84,7 @@ extension CreateNoteView {
                 if !noteTitle.trimmed.isEmpty {
                     Text(noteTitle.trimmed)
                         .font(.title3.weight(.semibold))
+                        .foregroundColor(Color.adaptiveText(colorScheme: colorScheme))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
@@ -86,8 +93,10 @@ extension CreateNoteView {
                 }
             }
             .padding(20)
+            .background(Color.clear)
         }
         .frame(maxWidth: .infinity, minHeight: 360)
+        .background(Color.clear)
     }
     
     @ViewBuilder
@@ -152,7 +161,11 @@ extension CreateNoteView {
                 .focused($focusedTextSectionID, equals: section.wrappedValue.id)
                 .scrollContentBackground(.hidden)
                 .padding()
-                .background(Color(red: 0.97, green: 0.98, blue: 1.0))
+                .background(
+                    colorScheme == .dark 
+                        ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0)
+                        : Color(red: 0.97, green: 0.98, blue: 1.0)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 18))
                 .onChange(of: section.wrappedValue.text) { _, _ in handleTextChange() }
             
@@ -173,7 +186,11 @@ extension CreateNoteView {
         let sectionID = section.wrappedValue.id
         ZStack(alignment: .center) {
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color(red: 0.97, green: 0.98, blue: 1.0))
+                .fill(
+                    colorScheme == .dark 
+                        ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0)
+                        : Color(red: 0.97, green: 0.98, blue: 1.0)
+                )
                 .frame(minHeight: 200)
             
             if let data = section.wrappedValue.imageData, let image = UIImage(data: data) {
@@ -238,7 +255,11 @@ extension CreateNoteView {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.system(size: 24))
                         .foregroundColor(.white)
-                        .background(Color.black.opacity(0.6))
+                        .background(
+                            colorScheme == .dark 
+                                ? Color.white.opacity(0.3) 
+                                : Color.black.opacity(0.6)
+                        )
                         .clipShape(Circle())
                         .padding(8)
                 }
@@ -340,9 +361,13 @@ extension CreateNoteView {
                 EmptyView()
             } else {
                 let sanitized = sanitizeMarkdown(trimmed)
-                Markdown(sanitized)
-                    .markdownTheme(.gitHub)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 0) {
+                    Markdown(sanitized)
+                        .markdownTheme(.docC)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.clear)
+                .padding(0)
             }
         case .image:
             if let data = section.imageData, let image = UIImage(data: data) {

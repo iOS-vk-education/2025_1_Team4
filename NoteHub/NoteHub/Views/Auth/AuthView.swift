@@ -21,30 +21,41 @@ struct AuthView: View {
     @StateObject private var viewModel = AuthViewModel()
     @State private var isRegistrationPresented = false
     @EnvironmentObject private var userStorage: UserStorage
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case login, password
+    }
 
     var body: some View {
-        ZStack {
-            Color("Main_Background")
-                .ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Color("Main_Background")
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        focusedField = nil
+                    }
 
-            VStack(spacing: 0) {
-                Spacer()
+                VStack(spacing: 0) {
+                    Spacer()
 
-                VStack(alignment: .leading, spacing: 32) {
-                    
-                    Text("Укажите данные")
-                        .font(.title2.bold())
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    VStack(alignment: .leading, spacing: 32) {
+                        
+                        Text("Укажите данные")
+                            .font(.title2.bold())
+                            .frame(maxWidth: .infinity, alignment: .center)
 
-                    
-                    VStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Логин")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Логин")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
 
-                            TextField("example@mail.ru", text: $viewModel.login) // TODO убирать пробельные символы по бокам
+                            TextField("example@mail.ru", text: $viewModel.login)
+                                .focused($focusedField, equals: .login)
                                 .textFieldStyle(AppTextFieldStyle())
+                                .submitLabel(.return)
                         }
 
                         VStack(alignment: .leading, spacing: 8) {
@@ -53,46 +64,50 @@ struct AuthView: View {
                                 .foregroundColor(.secondary)
 
                             SecureField("Введите пароль", text: $viewModel.password)
+                                .focused($focusedField, equals: .password)
                                 .textFieldStyle(AppTextFieldStyle())
+                                .submitLabel(.return)
+                            }
+                        }
+
+                        Button {
+                            login()
+                        } label: {
+                            Text("Войти")
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(viewModel.isFormValid ? Color.blue : Color.secondary)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .foregroundStyle(.white)
+                                .font(.headline)
+                        }
+                        .disabled(!viewModel.isFormValid)
+                    }
+                    .padding(.vertical, 32)
+                    .padding(.horizontal, 16)
+                    .background(Color("Modal_Background"))
+                    .cornerRadius(16)
+
+                    Spacer()
+
+                    VStack(spacing: 8) {
+                        Text("Еще нет аккаунта?")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.secondary)
+
+                        Button {
+                            isRegistrationPresented = true
+                        } label: {
+                            Text("Зарегистрироваться")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.blue)
                         }
                     }
-
-                    Button {
-                        login()
-                    } label: {
-                        Text("Войти")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(viewModel.isFormValid ? Color.blue : Color.secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .foregroundStyle(.white)
-                            .font(.headline)
-                    }
-                    .disabled(!viewModel.isFormValid)
                 }
-                .padding(.vertical, 32)
-                .padding(.horizontal, 16)
-                .background(Color("Modal_Background"))
-                .cornerRadius(16)
-
-                Spacer()
-
-                VStack(spacing: 8) {
-                    Text("Еще нет аккаунта?")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.secondary)
-
-                    Button {
-                        isRegistrationPresented = true
-                    } label: {
-                        Text("Зарегистрироваться")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.blue)
-                    }
-                }
+                .padding(32)
             }
-            .padding(32)
-
+            .keyboardDoneButton()
+            .navigationBarHidden(true)
         }
         // переход на регистрацию
         .fullScreenCover(isPresented: $isRegistrationPresented) {

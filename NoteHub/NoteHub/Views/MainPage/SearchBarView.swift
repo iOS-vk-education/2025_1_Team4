@@ -9,21 +9,35 @@ import SwiftUI
 
 struct SearchBarView: View {
     @Binding var searchText: String
+    @FocusState.Binding var isFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var placeholderColor: Color {
+        colorScheme == .dark ? Color.gray.opacity(0.6) : Color(.systemGray3)
+    }
+    
+    private var backgroundColor: Color {
+        Color.adaptiveInputBackground(colorScheme: colorScheme)
+    }
+    
     var body: some View {
         HStack {
             TextField("Поиск", text: $searchText)
+                .focused($isFocused)
+                .foregroundColor(Color.adaptiveText(colorScheme: colorScheme))
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
-                .background(Color.white)
+                .background(backgroundColor)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     HStack {
                         Spacer()
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(Color(.systemGray3))
+                            .foregroundColor(placeholderColor)
                             .padding(.trailing, 14)
                     }
                 )
+                .submitLabel(.return)
         }
         .padding(.horizontal, 32)
         .padding(.top, 8)
@@ -32,5 +46,6 @@ struct SearchBarView: View {
 
 #Preview {
     @Previewable @State var text = ""
-    return SearchBarView(searchText: $text)
+    @Previewable @FocusState var isFocused: Bool
+    return SearchBarView(searchText: $text, isFocused: $isFocused)
 }

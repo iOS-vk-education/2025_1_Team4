@@ -18,7 +18,7 @@ final class NotesManager {
         let nid = UUID().uuidString
         let dbContent = try await processContent(content: createNoteRequest.content)
         
-        let dict: [String: Any] = [
+        var dict: [String: Any] = [
             "nid": nid,
             "title": createNoteRequest.title,
             "color": UIColor(createNoteRequest.color).hexString(),
@@ -34,6 +34,8 @@ final class NotesManager {
             }
         ]
         
+        let createdAt = Timestamp(date: Date())
+        dict["createdAt"] = createdAt
         try await Firestore.firestore().collection("notes").document(nid).setData(dict, merge: false)
         return DBNote(
             nid: nid,
@@ -42,6 +44,7 @@ final class NotesManager {
             isPublished: createNoteRequest.isPublished,
             owner: createNoteRequest.owner,
             content: dbContent,
+            createdAt: Date()
         )
     }
     
@@ -67,24 +70,59 @@ final class NotesManager {
     func getAllNotes() async throws -> [DBNote] {
         let snapshot = try await Firestore.firestore().collection("notes").getDocuments()
         let documents = snapshot.documents
+        
+        // Сначала собираем все уникальные UID для параллельной загрузки пользователей
+        let uids = Set(documents.compactMap { $0.data()["uid"] as? String })
+        
+        // Параллельно загружаем всех пользователей
+        var userCache: [String: DBUser] = [:]
+        try await withThrowingTaskGroup(of: (String, DBUser).self) { userGroup in
+            for uid in uids {
+                userGroup.addTask {
+                    let user = try await UserManager.instance.getUser(uid: uid)
+                    return (uid, user)
+                }
+            }
+            
+            for try await (uid, user) in userGroup {
+                userCache[uid] = user
+            }
+        }
+        
+        // Теперь загружаем заметки параллельно, используя кэш пользователей
         return try await withThrowingTaskGroup(of: DBNote.self) { group in
             for document in documents {
                 group.addTask {
                     let dict = document.data()
                     guard let content = dict["content"] as? [[String: String]] else { throw URLError(.badServerResponse) }
-                    var contents: [DBNoteContentItem] = []
-                    for contentItem in content {
-                        guard let ncid = contentItem["ncid"], let type = contentItem["type"] else { throw URLError(.badServerResponse) }
-                        switch type {
-                        case "text":
-                            let item = try await NoteContentItemManager.instance.getNoteContentItemText(ncid: ncid)
-                            contents.append(item)
-                        case "image":
-                            let item = try await NoteContentItemManager.instance.getNoteContentItemImage(ncid: ncid)
-                            contents.append(item)
-                        default:
-                            throw URLError(.badServerResponse)
+                    
+                    // Параллельная загрузка всех элементов контента
+                    let contents = try await withThrowingTaskGroup(of: (Int, DBNoteContentItem).self) { contentGroup in
+                        for (index, contentItem) in content.enumerated() {
+                            contentGroup.addTask {
+                                guard let ncid = contentItem["ncid"], let type = contentItem["type"] else {
+                                    throw URLError(.badServerResponse)
+                                }
+                                let item: DBNoteContentItem
+                                switch type {
+                                case "text":
+                                    item = try await NoteContentItemManager.instance.getNoteContentItemText(ncid: ncid)
+                                case "image":
+                                    item = try await NoteContentItemManager.instance.getNoteContentItemImage(ncid: ncid)
+                                default:
+                                    throw URLError(.badServerResponse)
+                                }
+                                return (index, item)
+                            }
                         }
+                        
+                        var results: [(Int, DBNoteContentItem)] = []
+                        for try await result in contentGroup {
+                            results.append(result)
+                        }
+                        // Сортируем по индексу, чтобы сохранить порядок
+                        results.sort { $0.0 < $1.0 }
+                        return results.map { $0.1 }
                     }
                     
                     guard let nid = dict["nid"] as? String,
@@ -94,7 +132,21 @@ final class NotesManager {
                           let uid = dict["uid"] as? String else { throw URLError(.badServerResponse) }
                     
                     let color = Color(UIColor(colorString))
-                    let dbUser = try await UserManager.instance.getUser(uid: uid)
+                    
+                    // Используем предзагруженный кэш пользователей
+                    guard let dbUser = userCache[uid] else {
+                        throw URLError(.badServerResponse)
+                    }
+                    
+                    // Используем timestamp из Firestore документа для сортировки по дате
+                    let createdAt: Date
+                    if let timestamp = document.data()["createdAt"] as? Timestamp {
+                        createdAt = timestamp.dateValue()
+                    } else {
+                        // Если createdAt нет в данных, используем текущую дату
+                        // (для старых документов, созданных до добавления поля createdAt)
+                        createdAt = Date()
+                    }
                     
                     return DBNote(
                         nid: nid,
@@ -102,7 +154,8 @@ final class NotesManager {
                         color: color,
                         isPublished: isPublished,
                         owner: dbUser,
-                        content: contents
+                        content: contents,
+                        createdAt: createdAt
                     )
                 }
             }

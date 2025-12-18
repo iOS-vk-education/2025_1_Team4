@@ -5,7 +5,16 @@ struct ProfileHeaderView: View {
     let notesCount: Int
     let publishedCount: Int
     
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var showSettings: Bool
+    
+    private var textColor: Color {
+        Color.adaptiveText(colorScheme: colorScheme)
+    }
+    
+    private var chipBackground: Color {
+        Color.adaptiveBackground(colorScheme: colorScheme)
+    }
     
     /// Показывать ли иконку фильтра
     let showsFilter: Bool
@@ -52,15 +61,16 @@ struct ProfileHeaderView: View {
                     .padding(.horizontal, 12)
                     .background(
                         Capsule()
-                            .fill(Color.white)
+                            .fill(chipBackground)
                     )
+                    .foregroundColor(textColor)
                 
                 Spacer()
                 
                 Button { showSettings = true } label: {
                     Image(systemName: "gearshape")
                         .font(.system(size: 20))
-                        .foregroundColor(.black)
+                        .foregroundColor(textColor)
                 }
             }
             
@@ -99,8 +109,9 @@ struct ProfileHeaderView: View {
                     .padding(.horizontal, 10)
                     .background(
                         Capsule()
-                            .fill(Color.white)
+                            .fill(chipBackground)
                     )
+                    .foregroundColor(textColor)
                 }
             }
         }
@@ -121,9 +132,9 @@ struct ProfileHeaderView: View {
         .padding(.vertical, 6)
         .padding(.horizontal, 10)
         .background(
-            Capsule().fill(Color.white)
+            Capsule().fill(chipBackground)
         )
-        .foregroundColor(.black)
+        .foregroundColor(textColor)
     }
 }
 

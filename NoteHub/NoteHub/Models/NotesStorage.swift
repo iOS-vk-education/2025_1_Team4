@@ -10,14 +10,24 @@ import Combine
 
 class NotesStorage: ObservableObject {
     @Published var notes: [DBNote] = []
+    @Published var isLoading: Bool = false
     
     func loadNotes() {
+        guard !isLoading else { return }
+        isLoading = true
         Task {
             do {
-                try await self.notes = NotesManager.instance.getAllNotes()
-                print("Notes loaded")
+                let loadedNotes = try await NotesManager.instance.getAllNotes()
+                await MainActor.run {
+                    self.notes = loadedNotes
+                    self.isLoading = false
+                    print("Notes loaded: \(loadedNotes.count)")
+                }
             } catch {
-                print("Load notes error: \(error)")
+                await MainActor.run {
+                    self.isLoading = false
+                    print("Load notes error: \(error)")
+                }
             }
         }
     }

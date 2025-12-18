@@ -6,7 +6,15 @@ extension CreateNoteView {
         HStack(spacing: 18) {
             
             Button {
-                dismiss()
+                // Если есть noteID, значит это редактирование существующей заметки
+                // (открыто через navigation из ShowNoteView) - используем только dismiss
+                if noteID != nil {
+                    dismiss()
+                } else {
+                    // Новая заметка (открыта через таб) - возвращаемся на предыдущий таб
+                    // previousTab содержит таб, с которого пользователь перешел на создание заметки
+                    selectedTab.wrappedValue = previousTab.wrappedValue
+                }
             } label: {
                 toolbarIcon(systemName: "arrow.left")
             }
@@ -84,7 +92,7 @@ extension CreateNoteView {
     func toolbarIcon(systemName: String) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 20, weight: .semibold))
-            .foregroundColor(.black)
+            .foregroundColor(Color.adaptiveText(colorScheme: colorScheme))
     }
     
     func togglePreviewMode() {
@@ -199,6 +207,10 @@ extension CreateNoteView {
                     stage = .reading
                     isSaving = false
                     savingMessage = nil
+                }
+                // Обновляем список заметок в фоне, не блокируя UI
+                Task {
+                    await notesStorage.loadNotes()
                 }
                 print("Create new note with nid: \(dbNote.nid)")
             } catch {

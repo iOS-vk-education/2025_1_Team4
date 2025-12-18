@@ -28,28 +28,39 @@ struct RegistrationView: View {
     @State private var isAuthPresented = false
     @EnvironmentObject private var userStorage: UserStorage
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case login, name, password, confirmPassword
+    }
     
     var body: some View {
-        ZStack {
-            Color("Main_Background")
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                Spacer()
+        NavigationStack {
+            ZStack {
+                Color("Main_Background")
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        focusedField = nil
+                    }
                 
-                VStack(alignment: .leading, spacing: 32) {
-                    Text("Укажите данные")
-                        .font(.title2.bold())
-                        .frame(maxWidth: .infinity, alignment: .center)
+                VStack(spacing: 0) {
+                    Spacer()
                     
-                    VStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Логин")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            TextField("example@mail.ru", text: $viewModel.login) // TODO убирать пробельные символы по бокам
+                    VStack(alignment: .leading, spacing: 32) {
+                        Text("Укажите данные")
+                            .font(.title2.bold())
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Логин")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                            TextField("example@mail.ru", text: $viewModel.login)
+                                .focused($focusedField, equals: .login)
                                 .textFieldStyle(AppTextFieldStyle())
+                                .submitLabel(.return)
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
@@ -57,8 +68,10 @@ struct RegistrationView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             
-                            TextField("Иван Иванов", text: $viewModel.name) // TODO убирать пробельные символы по бокам
+                            TextField("Иван Иванов", text: $viewModel.name)
+                                .focused($focusedField, equals: .name)
                                 .textFieldStyle(AppTextFieldStyle())
+                                .submitLabel(.return)
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
@@ -67,7 +80,9 @@ struct RegistrationView: View {
                                 .foregroundColor(.secondary)
                             
                             SecureField("Введите пароль", text: $viewModel.password)
+                                .focused($focusedField, equals: .password)
                                 .textFieldStyle(AppTextFieldStyle())
+                                .submitLabel(.return)
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
@@ -76,11 +91,13 @@ struct RegistrationView: View {
                                 .foregroundColor(.secondary)
                             
                             SecureField("Повторите пароль", text: $viewModel.confirmPassword)
+                                .focused($focusedField, equals: .confirmPassword)
                                 .textFieldStyle(AppTextFieldStyle())
+                                .submitLabel(.return)
+                            }
                         }
-                    }
-                    
-                    Button {
+                        
+                        Button {
                         register()
                     } label: {
                         Text("Зарегистрироваться")
@@ -116,7 +133,9 @@ struct RegistrationView: View {
                 }
             }
             .padding(32)
-            
+            }
+            .keyboardDoneButton()
+            .navigationBarHidden(true)
         }
         .fullScreenCover(isPresented: $isAuthPresented) {
             AuthView()

@@ -69,18 +69,21 @@ struct ProfileWithNotesView: View {
     @State private var selectedFilter: ProfileNotesFilter = .all
     @State private var showFilterMenu = false
     
-    // Отфильтрованные заметки
+    // Отфильтрованные заметки, отсортированные по дате (сначала новые)
     private var filteredNotes: [DBNote] {
+        let filtered: [DBNote]
         switch selectedFilter {
         case .all:
-            return notes
+            filtered = notes
         case .drafts:
             // мои и не опубликованные
-            return notes.filter { !$0.isPublished && $0.owner.name == username }
+            filtered = notes.filter { !$0.isPublished && $0.owner.name == username }
         case .published:
             // мои и опубликованные
-            return notes.filter { $0.isPublished && $0.owner.name == username }
+            filtered = notes.filter { $0.isPublished && $0.owner.name == username }
         }
+        // Сортируем по дате создания (сначала новые)
+        return filtered.sorted { $0.createdAt > $1.createdAt }
     }
     
     private var isFilterActive: Bool {

@@ -28,6 +28,7 @@ class NoteMocks {
                 .text(ncid: UUID().uuidString, value: "Определение"),
                 .text(ncid: UUID().uuidString, value: "Если Wi  ⊨ α при всех мирах из W, то a общезначима"),
             ],
+            createdAt: Date()
         )
     ]
 }

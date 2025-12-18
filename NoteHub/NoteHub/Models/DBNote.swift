@@ -16,6 +16,7 @@ struct DBNote: Identifiable {
     let isPublished: Bool
     let owner: DBUser
     let content: [DBNoteContentItem]
+    let createdAt: Date
     
     var id: String { nid }
     var preview: String {

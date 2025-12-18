@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject private var userStorage: UserStorage
     @EnvironmentObject private var notesStorage: NotesStorage
+    @Environment(\.profileNavigationPath) var profileNavigationPath
 
     @State private var showSettings = false
 
@@ -10,9 +11,11 @@ struct ProfileView: View {
         userStorage.currentUser?.name ?? "Гость"
     }
 
-    // Заметки текущего пользователя
+    // Заметки текущего пользователя, отсортированные по дате (сначала новые)
     private var userNotes: [DBNote] {
-        notesStorage.notes.filter { $0.owner.name == username }
+        notesStorage.notes
+            .filter { $0.owner.name == username }
+            .sorted { $0.createdAt > $1.createdAt }
     }
     
     // Количество заметок текущего пользователя
@@ -26,7 +29,7 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: profileNavigationPath) {
             VStack(spacing: 0) {
                 if userNotes.isEmpty {
                     EmptyProfileView(

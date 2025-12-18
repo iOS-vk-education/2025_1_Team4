@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // Маршруты внутри настроек
 enum SettingsRoute: Hashable {
@@ -25,20 +26,42 @@ struct TextFieldWithError: View {
     let errorText: String?
     
     @State private var isSecureVisible = false
+    @FocusState private var isFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var placeholderColor: Color {
+        colorScheme == .dark ? Color.gray.opacity(0.6) : Color(.placeholderText)
+    }
+    
+    private var backgroundColor: Color {
+        colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white
+    }
+    
+    private var textColor: Color {
+        colorScheme == .dark ? Color.white : Color.black
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: .trailing) {
                 Group {
                     if isSecure && !isSecureVisible {
-                        SecureField(title, text: $text)
+                            SecureField(title, text: $text)
+                                .focused($isFocused)
+                                .submitLabel(.return)
+                                .foregroundColor(textColor)
+                                .accentColor(.blue)
                     } else {
                         TextField(title, text: $text)
+                            .focused($isFocused)
+                            .submitLabel(.return)
+                            .foregroundColor(textColor)
+                            .accentColor(.blue)
                     }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(Color.white)
+                .background(backgroundColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(
@@ -71,6 +94,7 @@ struct TextFieldWithError: View {
 struct SettingsFlowContainer<Content: View>: View {
     let onBack: () -> Void
     let content: () -> Content
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         ZStack {
@@ -87,7 +111,7 @@ struct SettingsFlowContainer<Content: View>: View {
                                 .font(.system(size: 17))
                         }
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                     
                     Spacer()
                 }
@@ -111,6 +135,7 @@ struct SettingsFlowContainer<Content: View>: View {
 struct ChangeEmailView: View {
     let currentEmail: String
     let onBack: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     @State private var enteredCurrentEmail = ""
     @State private var newEmail = ""
@@ -146,7 +171,7 @@ struct ChangeEmailView: View {
                     )
                 }
                 .padding(16)
-                .background(Color.white)
+                .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
                 .cornerRadius(16)
                 
                 Button(action: handleChangeEmail) {
@@ -204,6 +229,7 @@ struct ChangeEmailView: View {
 struct ChangeNameView: View {
     let currentName: String
     let onBack: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     @State private var newName = ""
     @State private var password = ""
@@ -230,7 +256,7 @@ struct ChangeNameView: View {
                     )
                 }
                 .padding(16)
-                .background(Color.white)
+                .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
                 .cornerRadius(16)
                 
                 Button(action: handleChangeName) {
@@ -280,6 +306,7 @@ struct ChangeNameView: View {
 
 struct ChangePasswordView: View {
     let onBack: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     @State private var currentPassword = ""
     @State private var newPassword = ""
@@ -315,7 +342,7 @@ struct ChangePasswordView: View {
                     )
                 }
                 .padding(16)
-                .background(Color.white)
+                .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
                 .cornerRadius(16)
                 
                 Button(action: handleChangePassword) {
@@ -373,6 +400,7 @@ struct ChangePasswordView: View {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var userStorage: UserStorage
     
     @State private var path = NavigationPath()
@@ -410,6 +438,7 @@ struct SettingsView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .keyboardDoneButton()
         .alert(item: $activeAlert) { alertType in
             switch alertType {
             case .logout:
@@ -454,7 +483,7 @@ struct SettingsView: View {
                                 .font(.system(size: 17))
                         }
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                     
                     Spacer()
                 }
