@@ -30,6 +30,12 @@ struct NoteHubApp: App {
                     WelcomeView()
                 } else {
                     MainTabView()
+                        .onAppear {
+                            // Загружаем заметки при первом появлении MainTabView
+                            if notesStorage.notes.isEmpty && !notesStorage.isLoading {
+                                notesStorage.loadNotes()
+                            }
+                        }
                 }
             }
             .onAppear {

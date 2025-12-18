@@ -11,6 +11,7 @@ struct MainTabView: View {
     @State var selectedTab: Tab = .main
     @State var previousTab: Tab = .main
     @State var profileNavigationPath = NavigationPath()
+    @EnvironmentObject private var notesStorage: NotesStorage
 
     var body: some View {
         NavigationStack {
@@ -19,7 +20,6 @@ struct MainTabView: View {
                     switch selectedTab {
                     case .main:
                         MainPageView()
-                            .environmentObject(NotesStorage())
                     case .new:
                         CreateNoteView()
                             .environment(\.selectedTab, $selectedTab)
