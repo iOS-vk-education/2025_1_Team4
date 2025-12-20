@@ -47,23 +47,15 @@ struct TextFieldWithError: View {
                 Group {
                     if isSecure && !isSecureVisible {
                             SecureField(title, text: $text)
-                                .focused($isFocused)
-                                .submitLabel(.return)
-                                .foregroundColor(textColor)
-                                .accentColor(.blue)
+                                .textFieldStyle(AppTextFieldStyle())
                     } else {
                         TextField(title, text: $text)
-                            .focused($isFocused)
-                            .submitLabel(.return)
-                            .foregroundColor(textColor)
-                            .accentColor(.blue)
+                            .textFieldStyle(AppTextFieldStyle())
                     }
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
                 .background(backgroundColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: 12)
                         .stroke(
                             errorText == nil ? Color.gray.opacity(0.4) : Color.red,
                             lineWidth: 1
@@ -74,7 +66,7 @@ struct TextFieldWithError: View {
                     Button {
                         isSecureVisible.toggle()
                     } label: {
-                        Image(systemName: isSecureVisible ? "eye" : "eye.slash")
+                        Image(systemName: isSecureVisible ? "eye.slash" : "eye")
                             .foregroundColor(.gray)
                             .padding(.trailing, 12)
                     }
@@ -149,26 +141,44 @@ struct ChangeEmailView: View {
         SettingsFlowContainer(onBack: onBack) {
             VStack(spacing: 16) {
                 VStack(spacing: 12) {
-                    TextFieldWithError(
-                        title: "Текущая почта",
-                        text: $enteredCurrentEmail,
-                        isSecure: false,
-                        errorText: currentEmailError
-                    )
                     
-                    TextFieldWithError(
-                        title: "Новая почта",
-                        text: $newEmail,
-                        isSecure: false,
-                        errorText: newEmailError
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Почта")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        TextFieldWithError(
+                            title: "example@mail.ru",
+                            text: $enteredCurrentEmail,
+                            isSecure: false,
+                            errorText: currentEmailError
+                        )
+                    }
                     
-                    TextFieldWithError(
-                        title: "Пароль",
-                        text: $password,
-                        isSecure: true,
-                        errorText: passwordError
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Новая почта")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        TextFieldWithError(
+                            title: "example@mail.ru",
+                            text: $newEmail,
+                            isSecure: false,
+                            errorText: newEmailError
+                        )
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Пароль")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextFieldWithError(
+                            title: "",
+                            text: $password,
+                            isSecure: true,
+                            errorText: passwordError
+                        )
+                    }
                 }
                 .padding(16)
                 .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
@@ -241,19 +251,29 @@ struct ChangeNameView: View {
         SettingsFlowContainer(onBack: onBack) {
             VStack(spacing: 16) {
                 VStack(spacing: 12) {
-                    TextFieldWithError(
-                        title: "Новое имя",
-                        text: $newName,
-                        isSecure: false,
-                        errorText: nameError
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Новое имя")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextFieldWithError(
+                            title: "Иван Иванов",
+                            text: $newName,
+                            isSecure: false,
+                            errorText: nameError
+                        )
+                    }
                     
-                    TextFieldWithError(
-                        title: "Пароль",
-                        text: $password,
-                        isSecure: true,
-                        errorText: passwordError
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Пароль")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextFieldWithError(
+                            title: "",
+                            text: $password,
+                            isSecure: true,
+                            errorText: passwordError
+                        )
+                    }
                 }
                 .padding(16)
                 .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
@@ -320,26 +340,42 @@ struct ChangePasswordView: View {
         SettingsFlowContainer(onBack: onBack) {
             VStack(spacing: 16) {
                 VStack(spacing: 12) {
-                    TextFieldWithError(
-                        title: "Текущий пароль",
-                        text: $currentPassword,
-                        isSecure: true,
-                        errorText: currentPasswordError
-                    )
                     
-                    TextFieldWithError(
-                        title: "Новый пароль",
-                        text: $newPassword,
-                        isSecure: true,
-                        errorText: newPasswordError
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Текущий пароль")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextFieldWithError(
+                            title: "",
+                            text: $currentPassword,
+                            isSecure: true,
+                            errorText: currentPasswordError
+                        )
+                    }
                     
-                    TextFieldWithError(
-                        title: "Повторите пароль",
-                        text: $repeatPassword,
-                        isSecure: true,
-                        errorText: repeatPasswordError
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Новый пароль")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextFieldWithError(
+                            title: "",
+                            text: $newPassword,
+                            isSecure: true,
+                            errorText: newPasswordError
+                        )
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Повторите пароль")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        TextFieldWithError(
+                            title: "",
+                            text: $repeatPassword,
+                            isSecure: true,
+                            errorText: repeatPasswordError
+                        )
+                    }
                 }
                 .padding(16)
                 .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)

@@ -28,69 +28,92 @@ final class UserStorage: ObservableObject {
         }
     }
     
-    func register(viewModel: RegistrationViewModel) {
+    func register(
+        viewModel: RegistrationViewModel,
+        completion: @escaping (Error?) -> Void
+    ) {
         Task {
             do {
-                authData = try await AuthManager.instance.register(email: viewModel.login, password: viewModel.password)
-                currentUser = try await UserManager.instance.createUser(uid: authData!.uid, email: authData!.email, name: viewModel.name)
-                print("Registred new user: \(currentUser!)")
-            } catch {
-                // TODO может падать например из-за того что пользователь с таким email уже добавлен
-                // надо как-то нормально это обрабатывать и доносить до пользака
+                let authData = try await AuthManager.instance.register(
+                    email: viewModel.login,
+                    password: viewModel.password
+                )
                 
-                // обнаружил что там могут падать разные ошибки
-                // например пароль < 6 символов или некорректный email
-                print("Registration error: \(error)")
-            }
-        }
-    }
-    
-    func login(viewModel: AuthViewModel) {
-        Task {
-            do {
-                authData = try await AuthManager.instance.logIn(email: viewModel.login, password: viewModel.password)
-                currentUser = try await UserManager.instance.getUser(uid: authData!.uid)
-                print("Logged user: \(currentUser!)")
+                let user = try await UserManager.instance.getUser(uid: authData.uid)
+                
+                await MainActor.run {
+                    self.authData = authData
+                    self.currentUser = user
+                }
+                
+                completion(nil)
+                
             } catch {
-                // TODO same
-                print("LogIn error: \(error)")
+                completion(error)
             }
         }
     }
     
-    func updateUserName(newName: String) {
+    func login(
+        viewModel: AuthViewModel,
+        completion: @escaping (Error?) -> Void
+    ) {
         Task {
             do {
-                currentUser = try await UserManager.instance.updateUserName(newName: newName)
+                let authData = try await AuthManager.instance.logIn(
+                    email: viewModel.login,
+                    password: viewModel.password
+                )
+                
+                let user = try await UserManager.instance.getUser(uid: authData.uid)
+                
+                await MainActor.run {
+                    self.authData = authData
+                    self.currentUser = user
+                }
+                
+                completion(nil)
+                
             } catch {
-                // TODO same
-                print("Change name error: \(error)")
+                completion(error)
             }
         }
     }
-    
-    func logout() {
-        do {
-            try AuthManager.instance.logOut()
-            authData = nil
-        } catch {
-            // TODO same
-            print("Log out error: \(error)")
+        
+        func updateUserName(newName: String) {
+            Task {
+                do {
+                    currentUser = try await UserManager.instance.updateUserName(newName: newName)
+                } catch {
+                    // TODO same
+                    print("Change name error: \(error)")
+                }
+            }
         }
-    }
-    
-    func delete() {
-        Task {
+        
+        func logout() {
             do {
-                try await UserManager.instance.deleteUser(uid: authData!.uid)
-                try await AuthManager.instance.delete()
+                try AuthManager.instance.logOut()
                 authData = nil
-                currentUser = nil
             } catch {
                 // TODO same
-                print("Delete user error: \(error)")
+                print("Log out error: \(error)")
+            }
+        }
+        
+        func delete() {
+            Task {
+                do {
+                    try await UserManager.instance.deleteUser(uid: authData!.uid)
+                    try await AuthManager.instance.delete()
+                    authData = nil
+                    currentUser = nil
+                } catch {
+                    // TODO same
+                    print("Delete user error: \(error)")
+                }
             }
         }
     }
-}
+    
 

@@ -15,7 +15,7 @@ class RegistrationViewModel: ObservableObject {
     @Published var confirmPassword: String = ""
     
     var isFormValid: Bool {
-        !login.isEmpty &&
+        isValidEmail(login) &&
         !name.isEmpty &&
         !password.isEmpty &&
         !confirmPassword.isEmpty &&
@@ -29,6 +29,11 @@ struct RegistrationView: View {
     @EnvironmentObject private var userStorage: UserStorage
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
+    
+    @State private var newEmailError: String?
+    @State private var nameError: String?
+    @State private var newPasswordError: String?
+    @State private var repeatPasswordError: String?
     
     enum Field {
         case login, name, password, confirmPassword
@@ -53,100 +58,167 @@ struct RegistrationView: View {
                         
                         VStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Логин")
+                                Text("Почта")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                                 
-                            TextField("example@mail.ru", text: $viewModel.login)
+                                TextFieldWithError(
+                                    title: "example@mail.ru",
+                                    text: $viewModel.login,
+                                    isSecure: false,
+                                    errorText: newEmailError
+                                )
                                 .focused($focusedField, equals: .login)
-                                .textFieldStyle(AppTextFieldStyle())
                                 .submitLabel(.return)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Имя")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .onChange(of: viewModel.login) { _, newValue in
+                                    let email = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    
+                                    if email.isEmpty {
+                                        newEmailError = "Введите почту"
+                                    } else if !isValidEmail(email) {
+                                        newEmailError = "Некорректная почта"
+                                    } else {
+                                        newEmailError = nil
+                                    }
+                                }
+                            }
                             
-                            TextField("Иван Иванов", text: $viewModel.name)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Имя")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                TextFieldWithError(
+                                    title: "Иван Иванов",
+                                    text: $viewModel.name,
+                                    isSecure: false,
+                                    errorText: nameError
+                                )
                                 .focused($focusedField, equals: .name)
-                                .textFieldStyle(AppTextFieldStyle())
                                 .submitLabel(.return)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Пароль")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .onChange(of: viewModel.name) { _, newValue in
+                                    let name = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    nameError = name.isEmpty ? "Имя не может быть пустым" : nil
+                                }
+                            }
                             
-                            SecureField("Введите пароль", text: $viewModel.password)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Пароль")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                TextFieldWithError(
+                                    title: "Введите пароль",
+                                    text: $viewModel.password,
+                                    isSecure: true,
+                                    errorText: newPasswordError
+                                )
                                 .focused($focusedField, equals: .password)
-                                .textFieldStyle(AppTextFieldStyle())
                                 .submitLabel(.return)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Повторите пароль")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .onChange(of: viewModel.password) { _, newValue in
+                                    if newValue.count < 6 {
+                                        newPasswordError = "Пароль слишком короткий"
+                                    } else {
+                                        newPasswordError = nil
+                                    }
+                                    
+                                    if !viewModel.confirmPassword.isEmpty {
+                                        repeatPasswordError =
+                                        newValue == viewModel.confirmPassword
+                                        ? nil
+                                        : "Пароли не совпадают"
+                                    }
+                                }
+                            }
                             
-                            SecureField("Повторите пароль", text: $viewModel.confirmPassword)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Повторите пароль")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                TextFieldWithError(
+                                    title: "Повторите пароль",
+                                    text: $viewModel.confirmPassword,
+                                    isSecure: true,
+                                    errorText: repeatPasswordError
+                                )
                                 .focused($focusedField, equals: .confirmPassword)
-                                .textFieldStyle(AppTextFieldStyle())
                                 .submitLabel(.return)
+                                .onChange(of: viewModel.confirmPassword) { _, newValue in
+                                    repeatPasswordError =
+                                    newValue == viewModel.password
+                                    ? nil
+                                    : "Пароли не совпадают"
+                                }
                             }
                         }
+                            Button {
+                                register()
+                            } label: {
+                                Text("Зарегистрироваться")
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(viewModel.isFormValid ? Color.blue : Color.secondary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .foregroundStyle(.white)
+                                    .font(.headline)
+                            }
+                            .disabled(!viewModel.isFormValid)
+                            
+                        }
+                        .padding(.vertical, 32)
+                        .padding(.horizontal, 16)
+                        .background(Color("Modal_Background"))
+                        .cornerRadius(16)
                         
-                        Button {
-                        register()
-                    } label: {
-                        Text("Зарегистрироваться")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(viewModel.isFormValid ? Color.blue : Color.secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .foregroundStyle(.white)
-                            .font(.headline)
+                        Spacer()
+                        
+                        VStack(spacing: 8) {
+                            Text("Уже есть аккаунт?")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
+                            
+                            Button {
+                                isAuthPresented = true
+                            } label: {
+                                Text("Войти")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.blue)
+                            }
+                        }
                     }
-                    .disabled(!viewModel.isFormValid)
-                    
+                    .padding(32)
                 }
-                .padding(.vertical, 32)
-                .padding(.horizontal, 16)
-                .background(Color("Modal_Background"))
-                .cornerRadius(16)
-                
-                Spacer()
-                
-                VStack(spacing: 8) {
-                    Text("Уже есть аккаунт?")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.secondary)
-                    
-                    Button {
-                        isAuthPresented = true
-                    } label: {
-                        Text("Войти")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.blue)
-                    }
-                }
+                .keyboardDoneButton()
+                .navigationBarHidden(true)
             }
-            .padding(32)
+            .fullScreenCover(isPresented: $isAuthPresented) {
+                AuthView()
+                    .environmentObject(userStorage)
             }
-            .keyboardDoneButton()
-            .navigationBarHidden(true)
-        }
-        .fullScreenCover(isPresented: $isAuthPresented) {
-            AuthView()
-                .environmentObject(userStorage)
-        }
     }
     
     private func register() {
-        userStorage.register(viewModel: viewModel)
-        dismiss()
+        userStorage.register(viewModel: viewModel) { error in
+            guard let error else {
+                dismiss()
+                return
+            }
+
+            let mapped = AuthErrorMapper.map(error)
+
+            newEmailError = mapped.email
+            newPasswordError = mapped.password
+            repeatPasswordError = mapped.password
+        }
     }
+}
+
+func isValidEmail(_ s: String) -> Bool {
+    let s = s.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard let at = s.firstIndex(of: "@") else { return false }
+    let domain = s[s.index(after: at)...]
+    return !s.isEmpty && domain.contains(".") && !s.contains(" ")
 }
 
 #Preview {

@@ -13,7 +13,7 @@ class AuthViewModel: ObservableObject {
     @Published var password: String = ""
 
     var isFormValid: Bool {
-        !login.isEmpty && !password.isEmpty
+        return isValidEmail(login) && password.count >= 6
     }
 }
 
@@ -22,6 +22,9 @@ struct AuthView: View {
     @State private var isRegistrationPresented = false
     @EnvironmentObject private var userStorage: UserStorage
     @FocusState private var focusedField: Field?
+    
+    @State private var currentEmailError: String?
+    @State private var passwordError: String?
     
     enum Field {
         case login, password
@@ -48,25 +51,54 @@ struct AuthView: View {
                         
                         VStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Логин")
+                                Text("Почта")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
 
-                            TextField("example@mail.ru", text: $viewModel.login)
+                                TextFieldWithError(
+                                    title: "example@mail.ru",
+                                    text: $viewModel.login,
+                                    isSecure: false,
+                                    errorText: currentEmailError
+                                )
                                 .focused($focusedField, equals: .login)
-                                .textFieldStyle(AppTextFieldStyle())
                                 .submitLabel(.return)
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Пароль")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-
-                            SecureField("Введите пароль", text: $viewModel.password)
+                                .onChange(of: viewModel.login) { _, newValue in
+                                    let email = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    
+                                    if email.isEmpty {
+                                        currentEmailError = "Введите почту"
+                                    } else if !(email.contains("@") && email.contains(".") && !email.contains(" ")) {
+                                        currentEmailError = "Некорректная почта"
+                                    } else {
+                                        currentEmailError = nil
+                                    }
+                                }
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Пароль")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                TextFieldWithError(
+                                    title: "Введите пароль",
+                                    text: $viewModel.password,
+                                    isSecure: true,
+                                    errorText: passwordError
+                                )
                                 .focused($focusedField, equals: .password)
-                                .textFieldStyle(AppTextFieldStyle())
                                 .submitLabel(.return)
+                                .onChange(of: viewModel.password) { _, newValue in
+                                    if newValue.isEmpty {
+                                        passwordError = "Введите пароль"
+                                    } else if newValue.count < 6 {
+                                        passwordError = "Неправильный пароль"
+                                    } else {
+                                        passwordError = nil
+                                    }
+                                }
+                                
                             }
                         }
 
@@ -109,7 +141,6 @@ struct AuthView: View {
             .keyboardDoneButton()
             .navigationBarHidden(true)
         }
-        // переход на регистрацию
         .fullScreenCover(isPresented: $isRegistrationPresented) {
             RegistrationView()
                 .environmentObject(userStorage)
@@ -117,7 +148,14 @@ struct AuthView: View {
     }
 
     private func login() {
-        userStorage.login(viewModel: viewModel)
+        userStorage.login(viewModel: viewModel) { error in
+            guard let error else { return }
+
+            let mapped = AuthErrorMapper.map(error)
+
+            currentEmailError = mapped.email
+            passwordError = mapped.password
+        }
     }
 
 }
