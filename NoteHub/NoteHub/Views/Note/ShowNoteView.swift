@@ -50,25 +50,26 @@ struct ShowNoteView: View {
                                 .foregroundColor(textColor)
                                 .padding(.trailing, 6)
                         }
-                    } else {
-                        Menu {
-                            Button(action: {
-                                // TODO
-                            }) {
-                                Label("Сохранить", systemImage: "plus.square.on.square")
-                            }
-                            Button(action: {
-                                // TODO
-                            }) {
-                                Label("Перейти к автору", systemImage: "person")
-                            }
-                        } label: {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(textColor)
-                                .padding(.trailing, 6)
-                        }
                     }
+//                    else {
+//                        Menu {
+//                            Button(action: {
+//                                // TODO
+//                            }) {
+//                                Label("Сохранить", systemImage: "plus.square.on.square")
+//                            }
+//                            Button(action: {
+//                                // TODO
+//                            }) {
+//                                Label("Перейти к автору", systemImage: "person")
+//                            }
+//                        } label: {
+//                            Image(systemName: "line.3.horizontal")
+//                                .font(.system(size: 24, weight: .medium))
+//                                .foregroundColor(textColor)
+//                                .padding(.trailing, 6)
+//                        }
+//                    }
                     
                 }
                 .frame(width: 44, height: 44)
