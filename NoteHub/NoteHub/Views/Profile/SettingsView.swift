@@ -109,9 +109,6 @@ struct SettingsFlowContainer<Content: View>: View {
                 }
                 .padding(.top, 4)
                 
-                Text("Укажите данные")
-                    .font(.system(size: 20, weight: .semibold))
-                    .padding(.top, 8)
                 
                 content()
                 
@@ -129,6 +126,8 @@ struct ChangeEmailView: View {
     let onBack: () -> Void
     @Environment(\.colorScheme) private var colorScheme
     
+    @State private var isResetPasswordPresented = false
+    
     @State private var enteredCurrentEmail = ""
     @State private var newEmail = ""
     @State private var password = ""
@@ -139,10 +138,16 @@ struct ChangeEmailView: View {
     
     var body: some View {
         SettingsFlowContainer(onBack: onBack) {
-            VStack(spacing: 16) {
-                VStack(spacing: 12) {
+            VStack(spacing: 0) {
+                VStack(spacing: 32) {
+                    Text("Укажите данные")
+                        .font(.title2.bold())
+                        .frame(maxWidth: .infinity, alignment: .center)
+
                     
+                    VStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 8) {
+                        
                         Text("Почта")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -180,27 +185,37 @@ struct ChangeEmailView: View {
                         )
                     }
                 }
-                .padding(16)
+                Button(action: handleChangeEmail) {
+                        Text("Изменить почту")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
+                }
+                .padding(.vertical, 32)
+                .padding(.horizontal, 16)
                 .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
                 .cornerRadius(16)
                 
-                Button(action: handleChangeEmail) {
-                    Text("Изменить почту")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
                 
-                Button {
-                    // TODO: забыли пароль
-                } label: {
-                    Text("Забыли пароль?")
-                        .font(.system(size: 15))
-                        .foregroundColor(.blue)
-                }
+                
+                VStack() {
+                    Button {
+                        isResetPasswordPresented = true
+                        // TODO: переход на экран восстановления
+                    } label: {
+                        Text("Забыли пароль?")
+                            .font(.system(size: 15))
+                            .foregroundColor(.blue)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .fullScreenCover(isPresented: $isResetPasswordPresented) {
+                        ResetPasswordView(origin: .settings)
+                    }
+                }.padding(.vertical, 16)
             }
         }
         //прячем системную back-стрелку на этом экране, будет кастомная
@@ -241,6 +256,8 @@ struct ChangeNameView: View {
     let onBack: () -> Void
     @Environment(\.colorScheme) private var colorScheme
     
+    @State private var isResetPasswordPresented = false
+    
     @State private var newName = ""
     @State private var password = ""
     
@@ -249,8 +266,14 @@ struct ChangeNameView: View {
     
     var body: some View {
         SettingsFlowContainer(onBack: onBack) {
-            VStack(spacing: 16) {
-                VStack(spacing: 12) {
+            VStack(spacing: 0) {
+                VStack(spacing: 32) {
+                    Text("Укажите данные")
+                        .font(.title2.bold())
+                        .frame(maxWidth: .infinity, alignment: .center)
+
+                    
+                    VStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Новое имя")
                             .font(.subheadline)
@@ -275,27 +298,37 @@ struct ChangeNameView: View {
                         )
                     }
                 }
-                .padding(16)
+                    Button(action: handleChangeName) {
+                        Text("Изменить имя")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
+                }
+                .padding(.vertical, 32)
+                .padding(.horizontal, 16)
                 .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
                 .cornerRadius(16)
                 
-                Button(action: handleChangeName) {
-                    Text("Изменить имя")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
                 
-                Button {
-                    // TODO: забыли пароль
-                } label: {
-                    Text("Забыли пароль?")
-                        .font(.system(size: 15))
-                        .foregroundColor(.blue)
-                }
+                
+                VStack() {
+                    Button {
+                        isResetPasswordPresented = true
+                        // TODO: переход на экран восстановления
+                    } label: {
+                        Text("Забыли пароль?")
+                            .font(.system(size: 15))
+                            .foregroundColor(.blue)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .fullScreenCover(isPresented: $isResetPasswordPresented) {
+                        ResetPasswordView(origin: .settings)
+                    }
+                }.padding(.vertical, 16)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -328,6 +361,8 @@ struct ChangePasswordView: View {
     let onBack: () -> Void
     @Environment(\.colorScheme) private var colorScheme
     
+    @State private var isResetPasswordPresented = false
+    
     @State private var currentPassword = ""
     @State private var newPassword = ""
     @State private var repeatPassword = ""
@@ -338,66 +373,81 @@ struct ChangePasswordView: View {
     
     var body: some View {
         SettingsFlowContainer(onBack: onBack) {
-            VStack(spacing: 16) {
-                VStack(spacing: 12) {
+            VStack(spacing: 0) {
+                VStack(spacing: 32) {
+                    Text("Укажите данные")
+                        .font(.title2.bold())
+                        .frame(maxWidth: .infinity, alignment: .center)
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Текущий пароль")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        TextFieldWithError(
-                            title: "",
-                            text: $currentPassword,
-                            isSecure: true,
-                            errorText: currentPasswordError
-                        )
+                    VStack(spacing: 16) {
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Текущий пароль")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            TextFieldWithError(
+                                title: "",
+                                text: $currentPassword,
+                                isSecure: true,
+                                errorText: currentPasswordError
+                            )
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Новый пароль")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            TextFieldWithError(
+                                title: "",
+                                text: $newPassword,
+                                isSecure: true,
+                                errorText: newPasswordError
+                            )
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Повторите пароль")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            TextFieldWithError(
+                                title: "",
+                                text: $repeatPassword,
+                                isSecure: true,
+                                errorText: repeatPasswordError
+                            )
+                        }
                     }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Новый пароль")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        TextFieldWithError(
-                            title: "",
-                            text: $newPassword,
-                            isSecure: true,
-                            errorText: newPasswordError
-                        )
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Повторите пароль")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        TextFieldWithError(
-                            title: "",
-                            text: $repeatPassword,
-                            isSecure: true,
-                            errorText: repeatPasswordError
-                        )
+                    Button(action: handleChangePassword) {
+                        Text("Изменить пароль")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.blue)
+                            .cornerRadius(10)
                     }
                 }
-                .padding(16)
+                .padding(.vertical, 32)
+                .padding(.horizontal, 16)
                 .background(colorScheme == .dark ? Color(red: 0x3C/255.0, green: 0x3C/255.0, blue: 0x3C/255.0) : Color.white)
                 .cornerRadius(16)
                 
-                Button(action: handleChangePassword) {
-                    Text("Изменить пароль")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .cornerRadius(10)
-                }
                 
-                Button {
-                    // TODO: забыли пароль
-                } label: {
-                    Text("Забыли пароль?")
-                        .font(.system(size: 15))
-                        .foregroundColor(.blue)
-                }
+                
+                VStack() {
+                    Button {
+                        isResetPasswordPresented = true
+                        // TODO: переход на экран восстановления
+                    } label: {
+                        Text("Забыли пароль?")
+                            .font(.system(size: 15))
+                            .foregroundColor(.blue)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .fullScreenCover(isPresented: $isResetPasswordPresented) {
+                        ResetPasswordView(origin: .settings)
+                    }
+                }.padding(.vertical, 16)
             }
         }
         .navigationBarBackButtonHidden(true)

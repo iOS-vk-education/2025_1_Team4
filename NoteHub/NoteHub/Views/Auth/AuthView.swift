@@ -20,6 +20,7 @@ class AuthViewModel: ObservableObject {
 struct AuthView: View {
     @StateObject private var viewModel = AuthViewModel()
     @State private var isRegistrationPresented = false
+    @State private var isResetPasswordPresented = false
     @EnvironmentObject private var userStorage: UserStorage
     @FocusState private var focusedField: Field?
     
@@ -114,12 +115,26 @@ struct AuthView: View {
                                 .font(.headline)
                         }
                         .disabled(!viewModel.isFormValid)
+                        
+                        
                     }
                     .padding(.vertical, 32)
                     .padding(.horizontal, 16)
                     .background(Color("Modal_Background"))
                     .cornerRadius(16)
-
+                    
+                    VStack() {
+                        Button {
+                            isResetPasswordPresented = true
+                        } label: {
+                            Text("Забыли пароль?")
+                                .font(.system(size: 15))
+                                .foregroundColor(.blue)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }.padding(.vertical, 16)
+                    
+                    
                     Spacer()
 
                     VStack(spacing: 8) {
@@ -137,9 +152,16 @@ struct AuthView: View {
                     }
                 }
                 .padding(32)
+                
+                
+
             }
             .keyboardDoneButton()
             .navigationBarHidden(true)
+        }
+        .fullScreenCover(isPresented: $isResetPasswordPresented) {
+            ResetPasswordView(origin: .auth)
+                .environmentObject(userStorage)
         }
         .fullScreenCover(isPresented: $isRegistrationPresented) {
             RegistrationView()
