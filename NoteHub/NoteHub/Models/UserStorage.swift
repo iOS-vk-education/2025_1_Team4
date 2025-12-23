@@ -38,17 +38,20 @@ final class UserStorage: ObservableObject {
                     email: viewModel.login,
                     password: viewModel.password
                 )
+                await MainActor.run {
+                    self.authData = authData
+                }
                 
                 let user = try await UserManager.instance.getUser(uid: authData.uid)
                 
                 await MainActor.run {
-                    self.authData = authData
                     self.currentUser = user
                 }
                 
                 completion(nil)
                 
             } catch {
+                print("test register us-4:\(error)")
                 completion(error)
             }
         }
