@@ -23,17 +23,16 @@ struct ResetPasswordView: View {
     @State private var passwordError: String?
     @State private var newPasswordError: String?
     @State private var repeatPasswordError: String?
-
+    
     let origin: ResetPasswordOrigin
     
     enum ResetPasswordOrigin {
         case auth
         case settings
     }
-
+    
     enum Step {
         case enterEmail
-        case enterCode
         case setPassword
     }
     
@@ -43,7 +42,7 @@ struct ResetPasswordView: View {
                 Color("Main_Background")
                     .ignoresSafeArea()
                     .onTapGesture { hideKeyboard() }
-
+                
                 VStack(spacing: 0) {
                     HStack(spacing: 8) {
                         Button(action: onBack) {
@@ -60,7 +59,7 @@ struct ResetPasswordView: View {
                     }
                     .padding(.top, 4)
                     .padding(.horizontal, 16)
-
+                    
                     Spacer()
                     
                     VStack(alignment: .leading, spacing: 32) {
@@ -96,9 +95,14 @@ struct ResetPasswordView: View {
                             }
                             
                             Button {
-                                // TODO: обработка ошибок, если почты не существует/не получается отправить письмо
-                                step = .enterCode
-                                
+                                Task {
+                                    do {
+                                        try await AuthManager.instance.sendPasswordResetEmail(to: email)
+                                    } catch {
+                                        print("Send recover email error: \(error)")
+                                    }
+                                }
+                                step = .setPassword
                             } label: {
                                 Text("Отправить письмо")
                                     .padding()
@@ -109,87 +113,17 @@ struct ResetPasswordView: View {
                                     .font(.headline)
                             }
                             
-                        case .enterCode:
-                            VStack(spacing: 16) {
-                                Text("Введите код")
-                                    .font(.title2.bold())
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                
-                                Text("Введите код из письма, которое мы отправили Вам на почту\n\(email)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                
-                                TextFieldWithError(
-                                    title: "XXX XXX",
-                                    text: $code,
-                                    isSecure: false,
-                                    errorText: codeError
-                                )
-                            }
-                            
-                            Button {
-                                // TODO: неправильный код
-                                step = .setPassword
-                                
-                            } label: {
-                                Text("Подтвердить")
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    .foregroundStyle(.white)
-                                    .font(.headline)
-                            }
-                            
                         case .setPassword:
                             VStack(spacing: 16) {
-                                Text("Придумайте новый пароль")
+                                Text("Отправили вам письмо с ссылкой для смены пароля на почту")
                                     .font(.title2.bold())
                                     .frame(maxWidth: .infinity, alignment: .center)
-                                
-                                VStack(alignment: .leading, spacing: 8) {
-                                    
-                                    Text("Пароль")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    
-                                    TextFieldWithError(
-                                        title: "",
-                                        text: $password,
-                                        isSecure: true,
-                                        errorText:passwordError
-                                    )
-                                    .onChange(of: password) { oldValue, newValue in
-                                        validatePasswords()
-                                    }
-                                    
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 8) {
-                                    
-                                    Text("Повторите пароль")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    
-                                    TextFieldWithError(
-                                        title: "",
-                                        text: $confirmPassword,
-                                        isSecure: true,
-                                        errorText: repeatPasswordError
-                                    )
-                                    .onChange(of: password) { oldValue, newValue in
-                                        validatePasswords()
-                                    }
-                                    
-                                }
-                                
                             }
                             
                             Button {
-                                changePassword()
                                 dismiss()
                             } label: {
-                                Text("Подтвердить")
+                                Text("Продолжить")
                                     .padding()
                                     .frame(maxWidth: .infinity)
                                     .background(Color.blue)
@@ -197,14 +131,13 @@ struct ResetPasswordView: View {
                                     .foregroundStyle(.white)
                                     .font(.headline)
                             }
-                            .disabled(!isPasswordValid)
                         }
                     }
                     .padding(.vertical, 32)
                     .padding(.horizontal, 16)
                     .background(Color("Modal_Background"))
                     .cornerRadius(16)
-
+                    
                     Spacer()
                 }
                 .padding(32)
@@ -217,10 +150,8 @@ struct ResetPasswordView: View {
         switch step {
         case .enterEmail:
             dismiss()
-        case .enterCode:
-            step = .enterEmail
         case .setPassword:
-            step = .enterCode
+            step = .enterEmail
         }
     }
     
@@ -240,10 +171,6 @@ struct ResetPasswordView: View {
     
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
-    private func changePassword() {
-        // TODO: логика изменения пароля в файр
     }
 }
 

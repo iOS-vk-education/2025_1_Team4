@@ -54,4 +54,8 @@ final class AuthManager {
         }
         try await user.delete()
     }
+    
+    func sendPasswordResetEmail(to email: String) async throws {
+        try await Auth.auth().sendPasswordReset(withEmail: email)
+    }
 }
