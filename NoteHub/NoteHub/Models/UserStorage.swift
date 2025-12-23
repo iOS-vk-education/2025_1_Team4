@@ -67,11 +67,13 @@ final class UserStorage: ObservableObject {
                     email: viewModel.login,
                     password: viewModel.password
                 )
+                await MainActor.run {
+                    self.authData = authData
+                }
                 
                 let user = try await UserManager.instance.getUser(uid: authData.uid)
                 
                 await MainActor.run {
-                    self.authData = authData
                     self.currentUser = user
                 }
                 
